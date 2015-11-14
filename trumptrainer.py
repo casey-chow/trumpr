@@ -26,7 +26,7 @@ def generate_letter(lm, history, order):
             x = x - v
             if x <= 0: return c
 
-def generate_text(lm, order, seed="~~~~~~~~", nletters=200):
+def generate_text(lm, order, seed, nletters=200):
     history = seed
     out = [seed]
     for i in xrange(nletters):
@@ -51,7 +51,7 @@ def generate_tweets(textSource, textOut, num):
         start = 0
         for j in range(randIndex,len(trumptext)):
             c = trumptext[j]
-            if c == tweetSeparate:
+            if c == tweetSeparate or c == '.' or c == '?' or c == '!':
                 for k in range(j+1, len(trumptext)):
                     if (trumptext[k].isalpha() or trumptext[k] == '@') and trumptext[k+1] != '.':
                         start = k
@@ -66,10 +66,18 @@ def generate_tweets(textSource, textOut, num):
             if c == tweetSeparate:
                 end = j
                 break
+            if c == '.' or c == '?' or c == '!' or c == '"':
+                for k in range(j-1, 0, -1):
+                    if trumptext[k].isalpha():
+                        end = k+2
+                        break
 
-        print(resultTweets[:end])
+        resultTweets = resultTweets[:end]
+        resultTweets = resultTweets.replace(tweetSeparate, "")
+        print(resultTweets)
         print('')
-        f.write(resultTweets[:end])
+
+        f.write(resultTweets)
         f.write("\n")
         f.write("\n")
 
