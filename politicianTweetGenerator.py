@@ -47,7 +47,7 @@ def writeTweetTextFile(screenname, latestID = '102046407113732096'):
             toWrite = toWrite.replace('&amp;', '&')
             toWrite = toWrite.replace('.@', '@')
             toWrite = re.sub(r'https?://t.co/\w+', '', toWrite)
-            toWrite = re.sub(r'[\s]+', ' ', toWrite) + '` '
+            toWrite = re.sub(r'[\s]+', ' ', toWrite) + '`'
             outfile.write(toWrite)
     outfile.close()
 
@@ -96,33 +96,35 @@ def generate_tweets(textSource, textOut, num):
     trumptext = g.read()
 
     for i in range(num):
-        randIndex = int(random.random() * (len(trumptext) - 1000))
-        start = 0
-        for j in range(randIndex,len(trumptext)):
-            c = trumptext[j]
-            if c == tweetSeparate or c == '.' or c == '?' or c == '!':
-                for k in range(j+1, len(trumptext)):
-                    if (trumptext[k].isalpha() or trumptext[k] == '@' or trumptext[k] == '#') and trumptext[k+1] != '.':
-                        start = k
-                        break
-                break
+        resultTweets = ""
+        while (len(resultTweets) < 10):
+            randIndex = int(random.random() * (len(trumptext) - 1000))
+            start = 0
+            for j in range(randIndex,len(trumptext)):
+                c = trumptext[j]
+                if c == tweetSeparate or c == '.' or c == '?' or c == '!':
+                    for k in range(j+1, len(trumptext)-1000+140):
+                        if (trumptext[k].isalpha() or trumptext[k] == '@' or trumptext[k] == '#') and trumptext[k+1] != '.':
+                            start = k
+                            break
+                    break
 
-        inputSeed = trumptext[start:start+default_order]
-        resultTweets = generate_text(lm, default_order, inputSeed)
+            inputSeed = trumptext[start:start+default_order]
+            resultTweets = generate_text(lm, default_order, inputSeed)
 
-        for j in range(len(resultTweets)-1,0,-1):
-            c = resultTweets[j]
-            if c == tweetSeparate:
-                end = j
-                break
-            if c == '.' or c == '?' or c == '!' or c == '"':
-                for k in range(j-1, 0, -1):
-                    if trumptext[k].isalpha():
-                        end = k+2
-                        break
+            for j in range(len(resultTweets)-1,0,-1):
+                c = resultTweets[j]
+                if c == tweetSeparate:
+                    end = j
+                    break
+                if c == '.' or c == '?' or c == '!' or c == '"':
+                    for k in range(j-1, 0, -1):
+                        if trumptext[k].isalpha():
+                            end = k+2
+                            break
 
-        resultTweets = resultTweets[:end]
-        resultTweets = resultTweets.replace(tweetSeparate, "")
+            resultTweets = resultTweets[:end]
+            resultTweets = resultTweets.replace(tweetSeparate, "")
         # print(resultTweets)
         # print('')
 
@@ -146,7 +148,7 @@ else:
     writeTweetTextFile(screenname, latestID)
 
 
-generate_tweets(sourceFile, outTweetFile, 20)
+generate_tweets(sourceFile, outTweetFile, 100)
 
 
 
