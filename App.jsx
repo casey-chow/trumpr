@@ -4,10 +4,12 @@ App = React.createClass({
     },
 
     render() {
-        <div className="container">
-            <header>
-                <h1>Todo List</h1>
-            </header>
-        </div>
+        return (
+            <div className="container">
+                <header>
+                    <h1>Todo List</h1>
+                </header>
+            </div>
+        );
     }
 });
