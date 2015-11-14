@@ -3,32 +3,45 @@ from twitter import Twitter, OAuth, TwitterHTTPError
 from collections import *
 import random
 import string
+import os.path
 
-def writeTweetTextFile(screenname):
+def writeTweetTextFile(screenname, latestID = '102046407113732096'):
     # if len(sys.argv) > 1:
     #     screenname = sys.argv[1]
     # else:
     #     screenname = 'realDonaldTrump'
-    apikey = 'QKeGwK39iGzWLSzcBPRN038vH'
-    apisecret = 'WcAtHvSDY7UkBgA1o8VgSOIeDqctnhncy49VXUkasFWEFfhqjw'
-    accesstoken = '624850224-yRga3n3qzgyRChfO95sDmEe9cpSlnQg75FRfQuVg'
-    accesstokensecret = 'GGK6Wa6cdlGe1zxOe19zpuEr7WFolqlNtL1tDpsUth29M'
+    # apikey = 'QKeGwK39iGzWLSzcBPRN038vH'
+    # apisecret = 'WcAtHvSDY7UkBgA1o8VgSOIeDqctnhncy49VXUkasFWEFfhqjw'
+    # accesstoken = '624850224-yRga3n3qzgyRChfO95sDmEe9cpSlnQg75FRfQuVg'
+    # accesstokensecret = 'GGK6Wa6cdlGe1zxOe19zpuEr7WFolqlNtL1tDpsUth29M'
+
+    accesstoken = '3843303509-g3iFsHNxjVUfWml1wkPwwrvAuxzLhV5BZezLFzR'
+    accesstokensecret = 'iCh01KDauwYMj4mYfqOIIvWQFafNRGJz6AhXC9zM9daA5'
+    apikey = 'FRkxZ28y55sbr8oScY6qNsVeQ'
+    apisecret = 'NmGUxz5NJAIT3lx4X4T5G0cLkr7MwYgoHkuZ52Np3vYZNz51m7'
 
     oauth = OAuth(accesstoken, accesstokensecret, apikey, apisecret)
 
     twitter = Twitter(auth=oauth)
-    smallestID = '992046407113732096'
+    smallestID = '1992046407113732096'
+    newLatestID = 0
 
-    outputFile = screenname + '_text.txt'
-    outfile = codecs.open(outputFile, encoding='utf-8', mode='w')
+    outputFile = 'TweetSources/' + screenname + '_text.txt'
+    outfile = codecs.open(outputFile, encoding='utf-8', mode='a')
 
     numQueries = 19
     for i in range(numQueries):
-        data = twitter.statuses.user_timeline(trim_user='true', max_id=smallestID, 
+        data = twitter.statuses.user_timeline(trim_user='true', since_id=latestID, max_id=smallestID, 
     		include_rts='false', screen_name=screenname, lang='en', count=200)
+        if len(data) == 0:
+            break
         for x in data:
             toWrite = x['text']
-            smallestID = x['id']
+            smallestID = x['id']-1
+            if (newLatestID == 0):
+                newLatestID = smallestID + 1
+                outfile.write(str(newLatestID))
+                outfile.write('\n')
             if toWrite[0] == '"':
                 continue
             toWrite = toWrite.replace('&amp;', '&')
@@ -83,7 +96,7 @@ def generate_tweets(textSource, textOut, num):
     trumptext = g.read()
 
     for i in range(num):
-        randIndex = int(random.random() * (len(trumptext) - 100))
+        randIndex = int(random.random() * (len(trumptext) - 1000))
         start = 0
         for j in range(randIndex,len(trumptext)):
             c = trumptext[j]
@@ -110,8 +123,8 @@ def generate_tweets(textSource, textOut, num):
 
         resultTweets = resultTweets[:end]
         resultTweets = resultTweets.replace(tweetSeparate, "")
-        print(resultTweets)
-        print('')
+        # print(resultTweets)
+        # print('')
 
         f.write(resultTweets)
         f.write("\n")
@@ -122,8 +135,18 @@ if len(sys.argv) > 1:
 else:
     screenname = 'realDonaldTrump'
 
-writeTweetTextFile(screenname)
-generate_tweets(screenname + '_text.txt', screenname + '_results.txt', 20)
+sourceFile = 'TweetSources/' + screenname + '_text.txt'
+outTweetFile = 'TweetResults/' + screenname + '_results.txt'
+
+if(not os.path.isfile(sourceFile)):
+    writeTweetTextFile(screenname)
+else:
+    h = open(sourceFile, 'r')
+    latestID = h.readline()
+    writeTweetTextFile(screenname, latestID)
+
+
+generate_tweets(sourceFile, outTweetFile, 20)
 
 
 
