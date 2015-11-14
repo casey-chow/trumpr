@@ -18,9 +18,12 @@ for i in range(19):
 		include_rts='false', user_id='25073877', 
 		screen_name='realDonaldTrump', lang='en', count=200)
     for x in data:
-        toWrite = x['text'].replace('&amp;', '&')+' '
+        toWrite = x['text']
+        smallestID = x['id']
+        if toWrite[0] == '"':
+            continue
+        toWrite = toWrite.replace('&amp;', '&')+' '
         toWrite = re.sub(r'https?://t.co/\w+ ', ' ', toWrite)
         toWrite = re.sub(r'https?://t.co/\w+"', '', toWrite)
         outfile.write(toWrite)
-        smallestID = x['id']
 outfile.close()
