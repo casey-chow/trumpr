@@ -26,7 +26,7 @@ def generate_letter(lm, history, order):
             x = x - v
             if x <= 0: return c
 
-def generate_text(lm, order, seed="~~~~~~~~", nletters=250):
+def generate_text(lm, order, seed="~~~~~~~~", nletters=200):
     history = seed
     # for i in range(order):
     #     history += random.choice(string.letters) * order
@@ -42,29 +42,35 @@ lm = train_char_lm(trumpTextSource, order=default_order)
 
 
 g = open(trumpTextSource, 'r')
-f = open("trumpresults.txt", 'a')
+f = open("trumpresults2.txt", 'a')
 
 trumptext = g.read()
 
 
-for i in range(1):
-    randIndex = int(random.random() * (len(trumptext) - default_order))
-    inputSeed = trumptext[randIndex:randIndex+default_order]
-    resultTweets = generate_text(lm, default_order, inputSeed[:default_order])
-
+for i in range(30):
+    randIndex = int(random.random() * (len(trumptext) - 100))
     start = 0
-    end = len(resultTweets)
-    for i in range(len(resultTweets)):
-        if resultTweets[i] == ' ':
-            start = i+1
-            break
-    for i in range(len(resultTweets)-1,0,-1):
-        if resultTweets[i] == ' ':
-            end = i
+    for j in range(randIndex,len(trumptext)):
+        c = trumptext[j]
+        if c == '.' or c == '?' or c == '!':
+            for k in range(j+1, len(trumptext)):
+                if trumptext[k].isalpha() or trumptext[k] == '@':
+                    start = k
+                    break
             break
 
-    print(resultTweets[start:end])
-    f.write(resultTweets[start:end])
+    inputSeed = trumptext[start:start+default_order]
+    resultTweets = generate_text(lm, default_order, inputSeed)
+
+    for j in range(len(resultTweets)-1,0,-1):
+        c = resultTweets[j]
+        if c == '.' or c == '?' or c == '!':
+            end = j+1
+            break
+
+    print(resultTweets[:end])
+    print()
+    f.write(resultTweets[:end])
     f.write("\n")
     f.write("\n")
 
