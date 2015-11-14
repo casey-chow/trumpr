@@ -26,6 +26,7 @@ for i in range(19):
             continue
         toWrite = toWrite.replace('&amp;', '&')
         toWrite = toWrite.replace('.@', '@')
+        toWrite = re.sub(r'^ ', '', toWrite)
         toWrite = re.sub(r'https?://t.co/\w+', '', toWrite)
         toWrite = re.sub(r'[\s]+', ' ', toWrite) + '` '
         outfile.write(toWrite)
