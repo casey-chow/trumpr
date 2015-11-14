@@ -1,14 +1,15 @@
 App = React.createClass({
-    getTweets() {
-
-    },
-
     render() {
         return (
             <div className="container">
-                <header>
-                    <h1>Need More Trump?</h1>
+                <header className="row">
+                    <h1 className="col-md-12">Need More Trump?</h1>
                 </header>
+                <main className="row">
+                    <section className="col-md-4">
+                        <Tweets author="realDonaldTrump" />
+                    </section>
+                </main>
             </div>
         );
     }
