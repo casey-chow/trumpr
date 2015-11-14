@@ -7,7 +7,7 @@ App = React.createClass({
         return (
             <div className="container">
                 <header>
-                    <h1>Todo List</h1>
+                    <h1>Need More Trump?</h1>
                 </header>
             </div>
         );
