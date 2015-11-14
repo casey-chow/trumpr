@@ -42,7 +42,7 @@ def generate_tweets(textSource, textOut, num):
 
 
     g = open(trumpTextSource, 'r')
-    f = open(textOut, 'w')
+    f = open(textOut, 'a')
 
     trumptext = g.read()
 
@@ -53,7 +53,7 @@ def generate_tweets(textSource, textOut, num):
             c = trumptext[j]
             if c == tweetSeparate or c == '.' or c == '?' or c == '!':
                 for k in range(j+1, len(trumptext)):
-                    if (trumptext[k].isalpha() or trumptext[k] == '@') and trumptext[k+1] != '.':
+                    if (trumptext[k].isalpha() or trumptext[k] == '@' or trumptext[k] == '#') and trumptext[k+1] != '.':
                         start = k
                         break
                 break
@@ -82,5 +82,5 @@ def generate_tweets(textSource, textOut, num):
         f.write("\n")
 
 
-generate_tweets("trumpText3.txt", "trumpresults3.txt", 20)
+generate_tweets("carsonText.txt", "carsonResults1.txt", 20)
 
