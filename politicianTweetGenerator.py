@@ -132,23 +132,30 @@ def generate_tweets(textSource, textOut, num):
         f.write("\n")
         f.write("\n")
 
-if len(sys.argv) > 1:
-    screenname = sys.argv[1]
+def runner(n, screenname):
+    sourceFile = 'TweetSources/' + screenname + '_text.txt'
+    outTweetFile = 'TweetResults/' + screenname + '_results.txt'
+
+    if(not os.path.isfile(sourceFile)):
+        writeTweetTextFile(screenname)
+    else:
+        h = open(sourceFile, 'r')
+        latestID = h.readline()
+        writeTweetTextFile(screenname, latestID)
+
+
+    generate_tweets(sourceFile, outTweetFile, n)
+
+
+if len(sys.argv) > 2:
+    screenname = sys.argv[2]
 else:
     screenname = 'realDonaldTrump'
 
-sourceFile = 'TweetSources/' + screenname + '_text.txt'
-outTweetFile = 'TweetResults/' + screenname + '_results.txt'
-
-if(not os.path.isfile(sourceFile)):
-    writeTweetTextFile(screenname)
-else:
-    h = open(sourceFile, 'r')
-    latestID = h.readline()
-    writeTweetTextFile(screenname, latestID)
+runner(int(sys.argv[1]), screenname)
 
 
-generate_tweets(sourceFile, outTweetFile, 100)
+
 
 
 
