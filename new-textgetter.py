@@ -20,6 +20,7 @@ for i in range(19):
     for x in data:
         toWrite = x['text'].replace('&amp;', '&')+' '
         toWrite = re.sub(r'https?://t.co/\w+ ', ' ', toWrite)
+        toWrite = re.sub(r'https?://t.co/\w+"', '', toWrite)
         outfile.write(toWrite)
         smallestID = x['id']
 outfile.close()
