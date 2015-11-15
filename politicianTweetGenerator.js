@@ -1,6 +1,6 @@
-var fs = require('fs');
-var Twit = require('twit');
-var path = require('path');
+var fs = Npm.require('fs');
+var Twit = Npm.require('twit');
+var path = Npm.require('path');
 var T = new Twit({
     consumer_key: 'FRkxZ28y55sbr8oScY6qNsVeQ',
     consumer_secret: 'NmGUxz5NJAIT3lx4X4T5G0cLkr7MwYgoHkuZ52Np3vYZNz51m7',
