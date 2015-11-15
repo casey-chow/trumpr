@@ -198,7 +198,7 @@ def runner(n, screenname):
     else:
         h = open(sourceFile, 'r')
         latestID = h.readline()
-        writeTweetTextFile(screenname, latestID)
+        # writeTweetTextFile(screenname, latestID)
 
 
     generate_tweets(sourceFile, outTweetFile, n)
