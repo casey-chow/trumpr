@@ -31,6 +31,7 @@ def writeTweetTextFile(screenname, latestID = '102046407113732096'):
     outfile = codecs.open(outputFile, encoding='utf-8', mode='a')
 
     numQueries = 19
+    firstLine = ""
     for i in range(numQueries):
         data = twitter.statuses.user_timeline(trim_user='true', since_id=latestID, max_id=smallestID, 
     		include_rts='false', screen_name=screenname, lang='en', count=200)
@@ -40,6 +41,7 @@ def writeTweetTextFile(screenname, latestID = '102046407113732096'):
             toWrite = x['text']
             smallestID = x['id']-1
             if (newLatestID == 0):
+                firstLine = x['text']
                 newLatestID = smallestID + 1
                 outfile.write(str(newLatestID))
                 outfile.write('\n')
@@ -50,6 +52,7 @@ def writeTweetTextFile(screenname, latestID = '102046407113732096'):
             toWrite = re.sub(r'https?://t.co/\w+', '', toWrite)
             toWrite = re.sub(r'[\s]+', ' ', toWrite) + '`'
             outfile.write(toWrite)
+    outfile.write(firstLine)
     outfile.close()
 
 default_order = 9
@@ -83,6 +86,7 @@ def generate_text(lm, order, seed, nletters=200):
         c = generate_letter(lm, history, order)
         history = history[-order:] + c
         out.append(c)
+        # print(c),
     return "".join(out)
 
 tweetSeparate = '`'
@@ -99,18 +103,22 @@ def generate_tweets(textSource, textOut, num):
     for i in range(num):
         resultTweets = ""
         while (len(resultTweets) < 10):
-            randIndex = int(random.random() * (len(trumptext) - 1000))
+            randIndex = int(random.random() * (len(trumptext) - 500))
             start = 0
             for j in range(randIndex,len(trumptext)):
                 c = trumptext[j]
                 if c == tweetSeparate or c == '.' or c == '?' or c == '!':
-                    for k in range(j+1, len(trumptext)-1000+140):
+                    # print(trumptext[j:j+5])
+                    for k in range(j+1, len(trumptext)-300):
+                        # print(trumptext[k])
                         if (trumptext[k].isalpha() or trumptext[k] == '@' or trumptext[k] == '#') and trumptext[k+1] != '.':
                             start = k
+                            # print(start)
                             break
                     break
 
             inputSeed = trumptext[start:start+default_order]
+            print(inputSeed)
             resultTweets = generate_text(lm, default_order, inputSeed)
 
             for j in range(len(resultTweets)-1,0,-1):
@@ -125,7 +133,7 @@ def generate_tweets(textSource, textOut, num):
                             break
 
             resultTweets = resultTweets[:end]
-            resultTweets = resultTweets.replace(tweetSeparate, "")
+            resultTweets = resultTweets.replace(tweetSeparate, " ")
         print(resultTweets)
         print('')
 
