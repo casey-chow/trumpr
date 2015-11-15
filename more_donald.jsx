@@ -22,11 +22,11 @@ if (Meteor.isServer) {
     let path = Npm.require('path');
     getTweets = function(num, screenName) {
         // 1st line name, 2nd line screen name, 3rd line profile image url
-            console.log('test')
+            // console.log('test')
             var execPath = 'python '+path.join(process.env.PWD, 'politicianTweetGenerator.py')+' '+num+' '+screenName;
             exec(execPath, Meteor.bindEnvironment(function (error, stdout, stderr) {
                 var buf = stdout.toString();
-                console.log(stderr)
+                // console.log(stderr)
                 // var buf = stdout
                 var arr = buf.split("\n");
                 var name = arr[0];
@@ -34,13 +34,13 @@ if (Meteor.isServer) {
                 var i = 3;
                 // console.log(arr.length)
                 while (i < arr.length) {
-                    console.log(arr[i])
+                    // console.log(arr[i])
                     TweetDB.insert({
                         name: name,
                         text: arr[i], 
                         screenName: screenName,
                         picURL: picURL
-                    });
+                    }, 0);
                     i++
                     // console.log(i)
                 }
@@ -57,5 +57,8 @@ if (Meteor.isServer) {
         }
     Meteor.startup(function () {
         getTweets(10, 'realDonaldTrump')
+        Meteor.setInterval(function() {
+        getTweets(1, 'realDonaldTrump')
+        }, 15000)
     });
 }

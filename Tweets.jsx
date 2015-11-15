@@ -20,7 +20,8 @@ Tweets = React.createClass({
 
     renderTweets(tweets) {
         return tweets.map(function (tweet, key) {
-            return <li className="list-group-item" key={key}>{tweet.text}</li>;
+            return <li className="list-group-item clearfix" key={key}> <div><div className="image"><img src={tweet.picURL}></img></div>
+               <div className="text"><div className="textHead"><b>{tweet.name}</b> <i>@{tweet.screenName}</i></div> {tweet.text}</div></div></li>;
         });
     },
 
@@ -32,7 +33,7 @@ Tweets = React.createClass({
                     <h1>Tweets <small>@{this.props.params.author}</small></h1>
                 </header>
                 <ul className="list-group">
-                    {this.renderTweets(this.data.tweetdb)}
+                    {this.renderTweets(this.data.tweetdb.reverse())}
                 </ul>
             </section>
         );
