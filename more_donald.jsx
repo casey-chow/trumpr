@@ -24,6 +24,7 @@ if (Meteor.isServer) {
                 var picURL = arr[2];
                 var time = (new Date).toTimeString()
                 time = time.substring(0,8) + time.substring(17,24)
+                console.log(time)
                 var i = 3;
                 arr.slice(3).forEach(function(tweet) {
                     console.log(tweet);
@@ -31,6 +32,7 @@ if (Meteor.isServer) {
                         authorFullName: authorFullName,
                         text: tweet, 
                         authorHandle: authorHandle,
+                        date: time,
                         picURL: picURL
                     });
                 });

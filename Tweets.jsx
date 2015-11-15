@@ -18,8 +18,8 @@ Tweets = React.createClass({
                 <li className="list-group-item" key={key}>
                     <div><div className="image"><img src={tweet.picURL} id="prof"></img></div>
                     <div className="text">
-                        <div className="textHead"><b>{tweet.name}</b>
-                            <font color="gray"><small>@{tweet.screenName} · {tweet.date}</small></font></div> {tweet.text}
+                        <div className="textHead"><b>{tweet.authorFullName} </b>
+                            <font color="gray"><small>@{tweet.authorHandle} · {tweet.date}</small></font></div> {tweet.text}
                         </div>
                     </div>
                 </li>
