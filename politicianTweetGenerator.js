@@ -15,7 +15,7 @@ function writeTweetTextFile(screenname) {
     }
     var smallestID = '1992046407113732096'    
     var newLatestID = 0
-    var outputFile = path.join(__dirname, 'TweetSources/'+screenname+'_text.txt');
+    var outputFile = path.join(process.env.PWD, 'TweetSources/'+screenname+'_text.txt');
     var outfile = fs.createWriteStream(outputFile, {encoding: "utf8" })
     var numQueries = 19;
     var firstLine = '';
@@ -52,7 +52,7 @@ function writeTweetTextFile(screenname) {
 function writeUserFile(screenname) {
     var smallestID = '1992046407113732096'
     var newLatestID = 0
-    var outputFile = path.join(__dirname, 'TweetSources/'+screenname+'_info.txt');
+    var outputFile = path.join(process.env.PWD, 'TweetSources/'+screenname+'_info.txt');
     var outfile = fs.createWriteStream(outputFile, {encoding: "utf8" });
     var data = T.get('users/search', {q: screenname, count: '1'});
     data.forEach(function(x, index, arr) {
@@ -200,9 +200,9 @@ function generate_tweets(textSource, textOut, num) {
 }
 
 function runner(n, screenname) {
-    var sourceFile = path.join(__dirname, 'TweetSources/'+screenname+'_text.txt');
-    var outTweetFile = path.join(__dirname, 'TweetSources/'+screenname+'_results.txt');
-    var userFile = path.join(__dirname, 'TweetSources/'+screenname+'_info.txt');
+    var sourceFile = path.join(process.env.PWD, 'TweetSources/'+screenname+'_text.txt');
+    var outTweetFile = path.join(process.env.PWD, 'TweetSources/'+screenname+'_results.txt');
+    var userFile = path.join(process.env.PWD, 'TweetSources/'+screenname+'_info.txt');
     var excepted = false;
     try {
         var f = fs.readFileSync(userFile);
