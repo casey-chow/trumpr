@@ -18,6 +18,7 @@ if (Meteor.isClient) {
 }
 
 if (Meteor.isServer) {
+
     let exec = Npm.require('child_process').exec;
     let path = Npm.require('path');
     getTweets = function(num, screenName) {
@@ -31,6 +32,8 @@ if (Meteor.isServer) {
                 var arr = buf.split("\n");
                 var name = arr[0];
                 var picURL = arr[2];
+                var time = (new Date).toTimeString()
+                time = time.substring(0,8) + time.substring(17,24)
                 var i = 3;
                 // console.log(arr.length)
                 while (i < arr.length) {
@@ -39,6 +42,7 @@ if (Meteor.isServer) {
                         name: name,
                         text: arr[i], 
                         screenName: screenName,
+                        date: time,
                         picURL: picURL
                     }, 0);
                     i++
