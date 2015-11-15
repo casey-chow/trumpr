@@ -20,7 +20,7 @@ Tweets = React.createClass({
 
     renderTweets(tweets) {
         return tweets.map(function (tweet, key) {
-            return <li className="list-group-item clearfix" key={key}> <div><div className="image"><img src={tweet.picURL}></img></div>
+            return <li className="list-group-item" key={key}> <div><div className="image"><img src={tweet.picURL} id="prof"></img></div>
                <div className="text"><div className="textHead"><b>{tweet.name}</b> <font color="gray"><small>@{tweet.screenName} · {tweet.date}</small></font></div> {tweet.text}</div></div></li>;
         });
     },
