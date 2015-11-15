@@ -118,7 +118,7 @@ def generate_tweets(textSource, textOut, num):
                     break
 
             inputSeed = trumptext[start:start+default_order]
-            print(inputSeed)
+            # print(inputSeed)
             resultTweets = generate_text(lm, default_order, inputSeed)
 
             for j in range(len(resultTweets)-1,0,-1):
