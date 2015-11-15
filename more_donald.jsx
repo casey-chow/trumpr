@@ -41,9 +41,10 @@ if (Meteor.isServer) {
     });
 
     Meteor.startup(function () {
-        Meteor.call('getTweets', 10, "realDonaldTrump");
+        handle = "realDonaldTrump"
+        Meteor.call('getTweets', 10, handle);
         Meteor.setInterval(function() {
-            Meteor.call('getTweets', 1, "realDonaldTrump");
+            Meteor.call('getTweets', 1, handle);
         }, 7000)
     });
 }
