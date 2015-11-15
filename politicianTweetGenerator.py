@@ -10,6 +10,7 @@ def writeTweetTextFile(screenname, latestID = '102046407113732096'):
     #     screenname = sys.argv[1]
     # else:
     #     screenname = 'realDonaldTrump'
+
     # apikey = 'QKeGwK39iGzWLSzcBPRN038vH'
     # apisecret = 'WcAtHvSDY7UkBgA1o8VgSOIeDqctnhncy49VXUkasFWEFfhqjw'
     # accesstoken = '624850224-yRga3n3qzgyRChfO95sDmEe9cpSlnQg75FRfQuVg'
@@ -125,8 +126,8 @@ def generate_tweets(textSource, textOut, num):
 
             resultTweets = resultTweets[:end]
             resultTweets = resultTweets.replace(tweetSeparate, "")
-        # print(resultTweets)
-        # print('')
+        print(resultTweets)
+        print('')
 
         f.write(resultTweets)
         f.write("\n")
