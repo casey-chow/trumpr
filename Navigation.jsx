@@ -16,7 +16,7 @@ Navigation = React.createClass({
                     <div className="collapse navbar-collapse" id="navbar-collapse">
                         <ul className="nav navbar-nav">
                             <li><a data-twitter-handle="realDonaldTrump">Donald Trump <span className="sr-only">(current)</span></a></li>
-                            <li><a data-twitter-handle="carly">Carly Fiorina</a></li>
+                            <li><a data-twitter-handle="BarackObama">Barack Obama</a></li>
                         </ul>
                         <form className="navbar-form navbar-right" id="custom-handle">
                             <div className="form-group">

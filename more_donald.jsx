@@ -22,6 +22,8 @@ if (Meteor.isServer) {
                 var arr = buf.split("\n");
                 var authorFullName = arr[0];
                 var picURL = arr[2];
+                var time = (new Date).toTimeString()
+                time = time.substring(0,8) + time.substring(17,24)
                 var i = 3;
                 arr.slice(3).forEach(function(tweet) {
                     console.log(tweet);
@@ -37,5 +39,6 @@ if (Meteor.isServer) {
     });
 
     Meteor.startup(function () {
+
     });
 }
