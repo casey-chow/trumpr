@@ -5,7 +5,7 @@ App = React.createClass({
                 <Navigation />
                 <Header />
                 <main className="row">
-                    <Tweets className="col-md-6 col-md-offset-3" author="realDonaldTrump" />
+                    <Tweets className="col-md-6 col-md-offset-3" author="realDonaldTrump" numToShow="10" />
                 </main>
             </div>
         );
