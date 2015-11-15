@@ -1,4 +1,15 @@
 Tweets = React.createClass({
+    
+    // This mixin makes the getMeteorData method work
+    mixins: [ReactMeteorData],
+    
+    // Loads items from the TweetDB collection and puts them on this.data.tweetdb
+    getMeteorData() {
+        return {
+            tweetdb: TweetDB.find({}).fetch()
+        }
+    },
+    
     defaultTweets: [
         'Cras justo odio',
         'Dapibus ac facilisis in',
@@ -9,7 +20,7 @@ Tweets = React.createClass({
 
     renderTweets(tweets) {
         return tweets.map(function (tweet, key) {
-            return <li className="list-group-item" key={key}>{tweet}</li>;
+            return <li className="list-group-item" key={key}>{tweet.text}</li>;
         });
     },
 
@@ -21,7 +32,7 @@ Tweets = React.createClass({
                     <h1>Tweets <small>@{this.props.params.author}</small></h1>
                 </header>
                 <ul className="list-group">
-                    {this.renderTweets(more_donald.callPython())}
+                    {this.renderTweets(this.data.tweetdb)}
                 </ul>
             </section>
         );
