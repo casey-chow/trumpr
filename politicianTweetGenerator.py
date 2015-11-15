@@ -52,6 +52,10 @@ def writeTweetTextFile(screenname, latestID = '102046407113732096'):
             toWrite = re.sub(r'https?://t.co/\w+', '', toWrite)
             toWrite = re.sub(r'[\s]+', ' ', toWrite) + '`'
             outfile.write(toWrite)
+    firstLine = firstLine.replace('&amp;', '&')
+    firstLine = firstLine.replace('.@', '@')
+    firstLine = re.sub(r'https?://t.co/\w+', '', firstLine)
+    firstLine = re.sub(r'[\s]+', ' ', firstLine) + '`'
     outfile.write(firstLine)
     outfile.close()
 
