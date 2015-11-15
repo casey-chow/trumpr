@@ -18,12 +18,13 @@ if (Meteor.isClient) {
 }
 
 if (Meteor.isServer) {
-    var exec = Npm.require('child_process').exec
+    let exec = Npm.require('child_process').exec;
+    let path = Npm.require('path');
     getTweets = function(num, screenName) {
         // 1st line name, 2nd line screen name, 3rd line profile image url
             console.log('test')
-            exec('python /Users/Matthew/Desktop/more_donald/politicianTweetGenerator.py '
-                +num+' '+ screenName, Meteor.bindEnvironment(function (error, stdout, stderr) {
+            var execPath = 'python '+path.join(process.env.PWD, 'politicianTweetGenerator.py')+' '+num+' '+screenName;
+            exec(execPath, Meteor.bindEnvironment(function (error, stdout, stderr) {
                 var buf = stdout.toString();
                 console.log(stderr)
                 // var buf = stdout

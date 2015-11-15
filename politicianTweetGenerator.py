@@ -27,7 +27,7 @@ def writeTweetTextFile(screenname, latestID = '102046407113732096'):
     smallestID = '1992046407113732096'
     newLatestID = 0
 
-    outputFile = 'TweetSources/' + screenname + '_text.txt'
+    outputFile = os.path.dirname(os.path.realpath(__file__)) + '/TweetSources/' + screenname + '_text.txt'
     outfile = codecs.open(outputFile, encoding='utf-8', mode='a')
 
     numQueries = 19
@@ -74,7 +74,7 @@ def writeUserFile(screenname):
     smallestID = '1992046407113732096'
     newLatestID = 0
 
-    outputFile = 'TweetSources/' + screenname + '_info.txt'
+    outputFile = os.path.dirname(os.path.realpath(__file__)) + '/TweetSources/' + screenname + '_info.txt'
     outfile = codecs.open(outputFile, encoding='utf-8', mode='a')
         #https://api.twitter.com/1.1/users/search.json?q=realDonaldTrump&count=1
     data = twitter.users.search(q=screenname, count=1)
@@ -182,9 +182,9 @@ def generate_tweets(textSource, textOut, num):
         f.write("\n")
 
 def runner(n, screenname):
-    sourceFile = 'TweetSources/' + screenname + '_text.txt'
-    outTweetFile = 'TweetResults/' + screenname + '_results.txt'
-    userFile = 'TweetSources/' + screenname + '_info.txt'
+    sourceFile = os.path.dirname(os.path.realpath(__file__)) + '/TweetSources/' + screenname + '_text.txt'
+    outTweetFile = os.path.dirname(os.path.realpath(__file__)) + '/TweetResults/' + screenname + '_results.txt'
+    userFile = os.path.dirname(os.path.realpath(__file__)) + '/TweetSources/' + screenname + '_info.txt'
 
     if(not os.path.isfile(userFile)):
         writeUserFile(screenname)
