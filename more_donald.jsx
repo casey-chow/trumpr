@@ -23,7 +23,7 @@ if (Meteor.isServer) {
                 var authorFullName = arr[0];
                 var picURL = arr[2];
                 var time = (new Date).toTimeString()
-                time = time.substring(0,8) + time.substring(17,24)
+                time = time.substring(0,8)
                 // console.log(time)
                 var i = 3;
                 arr.slice(3).forEach(function(tweet) {
@@ -41,6 +41,8 @@ if (Meteor.isServer) {
     });
 
     Meteor.startup(function () {
-
+        Meteor.setInterval(function() {
+            Meteor.call('getTweets', 1, "realDonaldTrump");
+        }, 10000)
     });
 }

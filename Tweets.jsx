@@ -10,13 +10,10 @@ Tweets = React.createClass({
 
     renderTweets() {
         // console.log("bob")
-        // Meteor.setInterval(function() {
-        Meteor.call('getTweets', 1, this.props.author);
-        // }, 100)
         
         return this.data.tweets
-        .slice(this.data.tweets.length - 10, this.data.tweets.length)
         .reverse()
+        .slice(0,10)     
         .map(function (tweet, key) {
             return (
                 <li className="list-group-item" key={key}>
