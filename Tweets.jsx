@@ -21,7 +21,7 @@ Tweets = React.createClass({
                     <h1>Tweets <small>@{this.props.params.author}</small></h1>
                 </header>
                 <ul className="list-group">
-                    {this.renderTweets(this.defaultTweets)}
+                    {this.renderTweets(more_donald.callPython())}
                 </ul>
             </section>
         );
