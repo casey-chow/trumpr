@@ -1,61 +1,44 @@
-let {Router, Route, IndexRoute} = ReactRouter;
-TweetDB = new Mongo.Collection("tweetdb");
+TweetsStore = new Mongo.Collection("Tweets");
 
 if (Meteor.isClient) {
     
     Meteor.startup(function() {
-        let history = ReactRouter.history.useQueries(ReactRouter.history.createHistory)()
-        var routes = (
-            <Router>
-                <Route path="/" component={App}>
-                    <IndexRoute component={Header} />
-                    <Route path="a/:author" component={Tweets} />
-                </Route>
-            </Router>
-        );
-        ReactDOM.render(routes, document.getElementById("render-target"));
+        ReactDOM.render(<App />, document.getElementById("render-target"));
     });
 }
 
 if (Meteor.isServer) {
-    let exec = Npm.require('child_process').exec;
-    let path = Npm.require('path');
-    getTweets = function(num, screenName) {
-        // 1st line name, 2nd line screen name, 3rd line profile image url
+    const exec = Npm.require('child_process').exec;
+    const path = Npm.require('path');
+
+    Meteor.methods({
+        getTweets(num, authorHandle) {
+            // 1st line name, 2nd line screen name, 3rd line profile image url
             console.log('test')
-            var execPath = 'python '+path.join(process.env.PWD, 'politicianTweetGenerator.py')+' '+num+' '+screenName;
+            var execPath = 'python '+path.join(process.env.PWD, 'politicianTweetGenerator.py')+' '+num+' '+authorHandle;
             exec(execPath, Meteor.bindEnvironment(function (error, stdout, stderr) {
                 var buf = stdout.toString();
-                console.log(stderr)
-                // var buf = stdout
+                console.log(stderr);
                 var arr = buf.split("\n");
-                var name = arr[0];
+                var authorFullName = arr[0];
                 var picURL = arr[2];
+                var time = (new Date).toTimeString()
+                time = time.substring(0,8) + time.substring(17,24)
                 var i = 3;
-                // console.log(arr.length)
-                while (i < arr.length) {
-                    console.log(arr[i])
-                    TweetDB.insert({
-                        name: name,
-                        text: arr[i], 
-                        screenName: screenName,
+                arr.slice(3).forEach(function(tweet) {
+                    console.log(tweet);
+                    TweetsStore.insert({
+                        authorFullName: authorFullName,
+                        text: tweet, 
+                        authorHandle: authorHandle,
                         picURL: picURL
                     });
-                    i++
-                    // console.log(i)
-                }
-
-                // // if you want to write to Mongo in this callback
-                // // you need to get yourself a Fiber
-
-                // new Fiber(function() {
-                //   ...
-                //   fut.return('Python was here');
-                // }).run();
-
+                });
             }, function () { console.log('Failed to bind environment'); }));
         }
+    });
+
     Meteor.startup(function () {
-        getTweets(10, 'realDonaldTrump')
+
     });
 }
