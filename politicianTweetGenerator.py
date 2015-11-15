@@ -195,9 +195,9 @@ def runner(n, screenname):
     if(not os.path.isfile(sourceFile)):
         writeTweetTextFile(screenname)
         
-    else:
-        h = open(sourceFile, 'r')
-        latestID = h.readline()
+    # else:
+    #     h = open(sourceFile, 'r')
+    #     latestID = h.readline()
         # writeTweetTextFile(screenname, latestID)
 
 

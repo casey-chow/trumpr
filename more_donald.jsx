@@ -14,20 +14,20 @@ if (Meteor.isServer) {
     Meteor.methods({
         getTweets(num, authorHandle) {
             // 1st line name, 2nd line screen name, 3rd line profile image url
-            console.log('test')
+            // console.log('test')
             var execPath = 'python '+path.join(process.env.PWD, 'politicianTweetGenerator.py')+' '+num+' '+authorHandle;
             exec(execPath, Meteor.bindEnvironment(function (error, stdout, stderr) {
                 var buf = stdout.toString();
-                console.log(stderr);
+                // console.log(stderr);
                 var arr = buf.split("\n");
                 var authorFullName = arr[0];
                 var picURL = arr[2];
                 var time = (new Date).toTimeString()
                 time = time.substring(0,8) + time.substring(17,24)
-                console.log(time)
+                // console.log(time)
                 var i = 3;
                 arr.slice(3).forEach(function(tweet) {
-                    console.log(tweet);
+                    //console.log(tweet);
                     TweetsStore.insert({
                         authorFullName: authorFullName,
                         text: tweet, 
