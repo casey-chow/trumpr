@@ -34,7 +34,7 @@ if (Meteor.isServer) {
                         authorHandle: authorHandle,
                         date: time,
                         picURL: picURL
-                    });
+                    }, 0);
                 });
             }, function () { console.log('Failed to bind environment'); }));
         }

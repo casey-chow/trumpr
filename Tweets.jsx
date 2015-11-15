@@ -9,9 +9,13 @@ Tweets = React.createClass({
     },
 
     renderTweets() {
-        // Meteor.call('getTweets', 10, this.props.author);
+        // console.log("bob")
+        // Meteor.setInterval(function() {
+        Meteor.call('getTweets', 1, this.props.author);
+        // }, 100)
+        
         return this.data.tweets
-        .slice(0, this.props.numToShow)
+        .slice(this.data.tweets.length - 10, this.data.tweets.length)
         .reverse()
         .map(function (tweet, key) {
             return (
