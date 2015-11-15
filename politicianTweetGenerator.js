@@ -55,7 +55,7 @@ function writeUserFile(screenname) {
     var outputFile = path.join(__dirname, 'TweetSources/'+screenname+'_info.txt');
     var outfile = fs.createWriteStream(outputFile, {encoding: "utf8" });
     var data = T.get('users/search', {q: screenname, count: '1'});
-    data.forEach(x) {
+    data.forEach(function(x, index, arr) {
         var name = x['name'];
         var screen = x['screen_name'];
         var profile = x['profile_image_url'];
@@ -67,7 +67,7 @@ function writeUserFile(screenname) {
         console.log(name);
         console.log(screen);
         console.log(profile);
-    }
+    });
     outfile.close();
 }
 
@@ -174,7 +174,7 @@ function generate_tweets(textSource, textOut, num) {
             }
             var inputSeed = trumptext.substring(start, start+default_order);
             var resultTweets = generate_text(lm, default_order, inputSeed);
-            for (var jj = resultTweets.length-1, jj >= 0; j--) {
+            for (var jj = resultTweets.length-1; jj >= 0; j--) {
                 var cc = resultTweets.charAt(jj);
                 if (cc == tweetSeparate) {
                     var end = j;
