@@ -179,6 +179,7 @@ def generate_tweets(textSource, textOut, num):
 
         f.write(resultTweets)
         f.write("\n")
+        f.write("\n")
 
 def runner(n, screenname):
     sourceFile = 'TweetSources/' + screenname + '_text.txt'
