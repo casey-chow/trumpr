@@ -28,7 +28,7 @@ function writeTweetTextFile(screenname) {
             var toWrite = x['text'];
             smallestID = x[id]-1;
             if (toWrite.substring(0,1) == '"') {
-                continue;
+                return;
             }
             toWrite = toWrite.replace('&amp;', '&');
             toWrite = toWrite.replace('.@', '@');
