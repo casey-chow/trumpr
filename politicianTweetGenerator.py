@@ -40,22 +40,20 @@ def writeTweetTextFile(screenname, latestID = '102046407113732096'):
         for x in data:
             toWrite = x['text']
             smallestID = x['id']-1
-            if (newLatestID == 0):
-                firstLine = x['text']
-                newLatestID = smallestID + 1
-                outfile.write(str(newLatestID))
-                outfile.write('\n')
             if toWrite[0] == '"':
                 continue
             toWrite = toWrite.replace('&amp;', '&')
             toWrite = toWrite.replace('.@', '@')
             toWrite = re.sub(r'https?://t.co/\w+', '', toWrite)
             toWrite = re.sub(r'[\s]+', ' ', toWrite) + '`'
+
+            if (newLatestID == 0):
+                firstLine = toWrite
+                newLatestID = smallestID + 1
+                outfile.write(str(newLatestID))
+                outfile.write('\n')
+
             outfile.write(toWrite)
-    firstLine = firstLine.replace('&amp;', '&')
-    firstLine = firstLine.replace('.@', '@')
-    firstLine = re.sub(r'https?://t.co/\w+', '', firstLine)
-    firstLine = re.sub(r'[\s]+', ' ', firstLine) + '`'
     outfile.write(firstLine)
     outfile.close()
 
