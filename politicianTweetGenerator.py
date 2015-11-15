@@ -40,20 +40,61 @@ def writeTweetTextFile(screenname, latestID = '102046407113732096'):
         for x in data:
             toWrite = x['text']
             smallestID = x['id']-1
-            if (newLatestID == 0):
-                firstLine = x['text']
-                newLatestID = smallestID + 1
-                outfile.write(str(newLatestID))
-                outfile.write('\n')
             if toWrite[0] == '"':
                 continue
             toWrite = toWrite.replace('&amp;', '&')
             toWrite = toWrite.replace('.@', '@')
             toWrite = re.sub(r'https?://t.co/\w+', '', toWrite)
             toWrite = re.sub(r'[\s]+', ' ', toWrite) + '`'
+
+            if (newLatestID == 0):
+                firstLine = toWrite
+                newLatestID = smallestID + 1
+                outfile.write(str(newLatestID))
+                outfile.write('\n')
+
             outfile.write(toWrite)
     outfile.write(firstLine)
     outfile.close()
+
+def writeUserFile(screenname):
+     # apikey = 'QKeGwK39iGzWLSzcBPRN038vH'
+    # apisecret = 'WcAtHvSDY7UkBgA1o8VgSOIeDqctnhncy49VXUkasFWEFfhqjw'
+    # accesstoken = '624850224-yRga3n3qzgyRChfO95sDmEe9cpSlnQg75FRfQuVg'
+    # accesstokensecret = 'GGK6Wa6cdlGe1zxOe19zpuEr7WFolqlNtL1tDpsUth29M'
+
+    accesstoken = '3843303509-g3iFsHNxjVUfWml1wkPwwrvAuxzLhV5BZezLFzR'
+    accesstokensecret = 'iCh01KDauwYMj4mYfqOIIvWQFafNRGJz6AhXC9zM9daA5'
+    apikey = 'FRkxZ28y55sbr8oScY6qNsVeQ'
+    apisecret = 'NmGUxz5NJAIT3lx4X4T5G0cLkr7MwYgoHkuZ52Np3vYZNz51m7'
+
+    oauth = OAuth(accesstoken, accesstokensecret, apikey, apisecret)
+
+    twitter = Twitter(auth=oauth)
+    smallestID = '1992046407113732096'
+    newLatestID = 0
+
+    outputFile = 'TweetSources/' + screenname + '_info.txt'
+    outfile = codecs.open(outputFile, encoding='utf-8', mode='a')
+        #https://api.twitter.com/1.1/users/search.json?q=realDonaldTrump&count=1
+    data = twitter.users.search(q=screenname, count=1)
+    for x in data:
+        #print(x)
+        name = x['name']
+        screen = x['screen_name']
+        profile = x['profile_image_url']
+        
+        outfile.write(name)
+        outfile.write('\n')
+        outfile.write(screen)
+        outfile.write('\n')
+        outfile.write(profile)
+
+        print(name)
+        print(screen)
+        print(profile)
+    outfile.close()
+
 
 default_order = 9
 
@@ -135,18 +176,24 @@ def generate_tweets(textSource, textOut, num):
             resultTweets = resultTweets[:end]
             resultTweets = resultTweets.replace(tweetSeparate, " ")
         print(resultTweets)
-        print('')
 
         f.write(resultTweets)
-        f.write("\n")
         f.write("\n")
 
 def runner(n, screenname):
     sourceFile = 'TweetSources/' + screenname + '_text.txt'
     outTweetFile = 'TweetResults/' + screenname + '_results.txt'
+    userFile = 'TweetSources/' + screenname + '_info.txt'
+
+    if(not os.path.isfile(userFile)):
+        writeUserFile(screenname)
+    else:
+        f = open(userFile, 'r')
+        print(f.read())
 
     if(not os.path.isfile(sourceFile)):
         writeTweetTextFile(screenname)
+        
     else:
         h = open(sourceFile, 'r')
         latestID = h.readline()
