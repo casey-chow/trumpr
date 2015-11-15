@@ -18,7 +18,7 @@ Tweets = React.createClass({
         return (
             <section {...this.props} >
                 <header className="page-header">
-                    <h1>Tweets <small>@{this.props.author}</small></h1>
+                    <h1>Tweets <small>@{this.props.params.author}</small></h1>
                 </header>
                 <ul className="list-group">
                     {this.renderTweets(this.defaultTweets)}

@@ -1,3 +1,5 @@
+const {Link} = ReactRouter;
+
 Navigation = React.createClass({
     render() {
         return (
@@ -15,14 +17,9 @@ Navigation = React.createClass({
 
                     <div className="collapse navbar-collapse" id="navbar-collapse">
                         <ul className="nav navbar-nav">
-                            <li><a href="/a/theRealDonaldTrump">Donald Trump <span className="sr-only">(current)</span></a></li>
-                            <li><a href="#">Carly Fiorina</a></li>
+                            <li><Link to="/a/theRealDonaldTrump">Donald Trump <span className="sr-only">(current)</span></Link></li>
+                            <li><Link to="/a/BarackObama">Carly Fiorina</Link></li>
                         </ul>
-                        {/* 
-                            <ul className="nav navbar-nav navbar-right">
-                            <li><a href="#">About</a></li>
-                            </ul> 
-                        */}
                         <form className="navbar-form navbar-right" id="custom-handle">
                             <div className="form-group">
                                 <input type="text" className="form-control" placeholder="Twitter Handle" />
