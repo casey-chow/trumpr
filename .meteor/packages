@@ -24,6 +24,4 @@ meteorhacks:npm
 
 
 npm-container
-velocity:html-reporter
-sanjo:jasmine
 stevezhu:lodash
