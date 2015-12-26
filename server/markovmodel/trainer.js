@@ -17,7 +17,7 @@ var createTwit = function() {
 }
 
 MarkovModel.getUserTweets = function(user) {
-    createTwit();11
+    createTwit();
     var youngestId = '1992046407113732096'; // this continually decreases
     var oldestId =    '102046407113732096'; // this remains the same
 
