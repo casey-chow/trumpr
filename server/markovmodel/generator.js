@@ -1,21 +1,17 @@
-MarkovModel = MarkovModel || {};
+MarkovModel = this.MarkovModel || {};
 
-MarkovModel.SEPARATOR = '|';
-MarkovModel.ORDER = 9;
-
-MarkovModel.generateText = function(lm, seed, n) {
+MarkovModel.generateText = function(model, seed, n) {
     n = n || 200;
     var history = seed;
     return _.reduce(_.range(n), function(out, i) {
-        var c = generateLetter(lm, history, MarkovModel.ORDER);
+        var c = generateLetter(model, history, MarkovModel.ORDER);
         history += c;
         return out + c;
     }, seed);
 }
 
-var generateLetter = function(lm, history) {
-    history = history.slice(-order);
-    var dist = lm[history];
+var generateLetter = function(model, history) {
+    var dist = model[history.slice(-order)];
     x = Math.random();
     return _.findKey(dist, function() {
         x -= v;
@@ -25,12 +21,13 @@ var generateLetter = function(lm, history) {
 
 // given a source block of text, returns an array of length 
 // `number` filled with auto tweet goodness
-MarkovModel.generateTweets = function(source, number) {
+// TODO: rewrite as iterator
+MarkovModel.generateTweets = function(source, model, number) {
     return _.reduce(_.range(0, number), function(tweets) {
         var seed = createSeed(source);
-        var markovText = generateText(lm, MarkovModel.ORDER, seed);
+        var markovText = generateText(model, MarkovModel.ORDER, seed);
         var nextTweet = truncate(markovText).replace(MarkovModel.SEPARATOR, ' ');
-        return tweets.concat(nextTweet);
+        return tweets.concat(i);
     }, []);
 };
 

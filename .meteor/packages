@@ -21,4 +21,10 @@ insecure                # Allow all DB writes from clients (for prototyping)
 react
 less
 twbs:bootstrap
+meteorhacks:npm
 underscore
+
+
+npm-container
+velocity:html-reporter
+sanjo:jasmine
