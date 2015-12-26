@@ -3,7 +3,7 @@ TweetsStore = new Mongo.Collection("Tweets");
 if (Meteor.isClient) {
     
     Meteor.startup(function() {
-        ReactDOM.render(<App />, document.getElementById("render-target"));
+        // ReactDOM.render(<App />, document.getElementById("render-target"));
     });
 }
 
