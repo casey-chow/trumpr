@@ -1,29 +1,28 @@
 MarkovModel = this.MarkovModel || {};
-
+var Twit, T, twGet;
 MarkovModel.trainUser = function(user) {
     var tweets = MarkovModel.getUserTweets(user);
     return trainFromText(tweets.join(MarkovModel.SEPARATOR));
 };
 
 var createTwit = function() {
-    MarkovModel.Twit = MarkovModel.Twit || Meteor.npmRequire('twit');
-    MarkovModel.T = MarkovModel.T || new MarkovModel.Twit({
+    Twit = Twit || Meteor.npmRequire('twit');
+    T = T || new Twit({
         consumer_key:         'FRkxZ28y55sbr8oScY6qNsVeQ', // API key
         consumer_secret:      'NmGUxz5NJAIT3lx4X4T5G0cLkr7MwYgoHkuZ52Np3vYZNz51m7', // API secret
         access_token:         '3843303509-g3iFsHNxjVUfWml1wkPwwrvAuxzLhV5BZezLFzR', 
         access_token_secret:  'iCh01KDauwYMj4mYfqOIIvWQFafNRGJz6AhXC9zM9daA5'
     });
-    MarkovModel.twGet = Meteor.wrapAsync(MarkovModel.T.get, MarkovModel.T);
+    twGet = Meteor.wrapAsync(T.get, T);
 }
 
 MarkovModel.getUserTweets = function(user) {
     createTwit();
     var youngestId = '1992046407113732096'; // this continually decreases
     var oldestId =    '102046407113732096'; // this remains the same
-
-    return _(_.range(MarkovModel.NUM_QUERIES))
+    var rtnval = _.chain(_.range(MarkovModel.NUM_QUERIES))
     .map(function() {
-        var data = MarkovModel.twGet('statuses/user_timeline', {
+        var data = twGet('statuses/user_timeline', {
             count: 200,
             include_rts: false,
             lang: 'en',
@@ -33,7 +32,7 @@ MarkovModel.getUserTweets = function(user) {
             trim_user: true
         });
 
-        youngestId = _.min(_.pluck(data, id)) - 1;
+        youngestId = _.min(_.pluck(data, 'id')) - 1;
         return data;
     })
     .flatten()
@@ -47,6 +46,9 @@ MarkovModel.getUserTweets = function(user) {
         .replace(/[\s]+/, ' ');
     })
     .value();
+
+    console.dir(rtnval);
+    return rtnval;
 };
 
 MarkovModel.getUserData = function(user) {

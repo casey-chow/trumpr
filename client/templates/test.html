@@ -1,0 +1,24 @@
+<template name="test">
+    <section class="col-md-12">
+        <form class="tweet-retrieval form-inline">
+            <div class="form-group">
+                <label class="sr-only" for="screen-name">Screen Name</label>
+                <div class="input-group">
+                  <div class="input-group-addon">@</div>
+                  <input type="text" class="form-control" id="screen-name" placeholder="realDonaldTrump">
+                </div>
+            </div>
+            {{!-- <button type="submit" class="btn btn-primary">Retrieve Tweets</button> --}}
+        </form>
+    </section>
+    <section class="col-md-6">
+        <h2>Tweet Retrieval <small>@{{user}}</small></h2> 
+        {{#if tweets}}
+        <ul class="tweet-retrieval-tweets">
+            {{#each tweets}}
+            <li>{{id}}: {{text}}</li>
+            {{/each}}
+        </ul>
+        {{/if}}
+    </section>
+</template>
