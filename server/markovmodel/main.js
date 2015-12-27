@@ -4,7 +4,3 @@ MarkovModel.SEPARATOR = '|';
 MarkovModel.ORDER = 9;
 
 MarkovModel.NUM_QUERIES = 19;
-
-Meteor.methods({
-    'twitter:getTweets': MarkovModel.getUserTweets
-});
