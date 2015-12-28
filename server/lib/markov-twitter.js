@@ -22,10 +22,20 @@ MarkovTwitter.trainFromTweets = function(tweets) {
     return MarkovModel.trainMarkovModel(source);
 };
 
+// TODO: rewrite as iterator
 MarkovTwitter.generateMarkovTweets = function(user, number) {
     var source = createSourceText(TwitterAPI.getTweets(user, +1));
     var model = MarkovTwitter.trainFromUser(user);
-    return generateTweets(source, model, number || 200);
+    number = number || 200;
+
+    tweets = [];
+    _.times(number, function(tweets) {
+        var seed = createSeed(source);
+        var markovText = MarkovModel.generateText(model, seed);
+        var nextTweet = truncate(markovText).replace(separator, ' ');
+        tweets.push(nextTweet);
+    });
+    return tweets;
 };
 
 MarkovTwitter.presentUserMarkovModel = function(user) {
@@ -39,18 +49,6 @@ Meteor.methods(MarkovTwitter);
 ///////////////////////////////////////////////////////////
 // TWEET PROCESSING                                      //
 ///////////////////////////////////////////////////////////
-
-// generates `number` tweets from the given source material and 
-// Markov Model
-// TODO: rewrite as iterator
-var generateTweets = function(source, model, number) {
-    return _.reduce(_.range(number), function(tweets) {
-        var seed = createSeed(source);
-        var markovText = MarkovModel.generateText(model, seed);
-        var nextTweet = truncate(markovText).replace(separator, ' ');
-        return tweets.concat(nextTweet);
-    }, []);
-};
 
 // converts a list of tweets into usable source text
 var createSourceText = function(tweets) {
