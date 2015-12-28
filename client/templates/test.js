@@ -5,7 +5,17 @@ Template.test.helpers({
     },
     tweets: function() { 
         return ReactiveMethod.call('getTweets', Session.get('user'));
+    },
+    markovModel: function() {
+        return ReactiveMethod.call('presentRawMarkovModel', Session.get('sourceText'));
+    },
+    markovModelLength: function() {
+        return _.values(Template.test.__helpers.get('markovModel').call()).length;
     }
+});
+
+Template.test.onDestroyed(function() {
+    Session.set('sourceText', undefined);
 });
 
 Template.test.events({
@@ -14,5 +24,11 @@ Template.test.events({
 
         var screenName = template.$('#screen-name').val();
         Session.set('user', screenName);
+    },
+    'submit .markov-model-input': function(event, template) {
+        event.preventDefault();
+
+        var sourceText = template.$('#markov-input').val();
+        Session.set('sourceText', sourceText);
     }
 });

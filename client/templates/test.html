@@ -34,6 +34,41 @@
             </div>
             {{/if}}
         </section>
-        
+    </section>
+    <section class="col-md-6">
+        <form class="markov-model-input">
+            <div class="form-group">
+                <label class="sr-only" for="markov-input">Source Text</label>
+                <input type="text" class="form-control" id="markov-input" placeholder="Sample Text Here">
+            </div>
+        </form>
+        <section class="markov-model">
+            <h2>Markov Model <small>{{markovModelLength}} Entries</small></h2>
+
+            {{#with markovModel}}
+                <div class="markov-model-frequencies">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>History</th>
+                                <th>Frequency Table</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {{#each markovModel}}
+                            <tr>
+                                <td><code>{{history}}</code></td>
+                                <td>
+                                    {{#each frequencies}}
+                                    <code>{{letter}}</code> {{freq}} 
+                                    {{/each}}
+                                </td>
+                            </tr>
+                            {{/each}}
+                        </tbody>
+                    </table>
+                </div>
+            {{/with}}
+        </section>
     </section>
 </template>
