@@ -12,13 +12,28 @@
         </form>
     </section>
     <section class="col-md-6">
-        <h2>Tweet Retrieval <small>@{{user}}</small></h2> 
-        {{#if tweets}}
-        <ul class="tweet-retrieval-tweets">
-            {{#each tweets}}
-            <li>{{created_at}}: {{text}}</li>
-            {{/each}}
-        </ul>
-        {{/if}}
+        <section class="user-profile">
+            <h2>Profile</h2>
+            {{#with userProfile}}
+            <img src="{{profile_image_url}}" alt="{{screen_name}} Profile Picture" class="user-profile-picture">
+            <h3 class="screen_name">@{{screen_name}}</h3>
+            <span class="real_name">{{name}}</span>
+            {{/with}}
+        </section>
+        <section class="tweet-retrieval">
+            <h2>Tweets <small>Total {{tweets.length}}</small></h2> 
+            {{#if tweets}}
+            <div class="tweet-retrieval-tweets">
+                {{#each tweets}}
+                <p>
+                    {{text}}
+                    <br />
+                    <small>{{created_at}}</small>
+                </p>
+                {{/each}}
+            </div>
+            {{/if}}
+        </section>
+        
     </section>
 </template>

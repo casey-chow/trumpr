@@ -1,9 +1,10 @@
 Template.test.helpers({
+    user: function() { return Session.get('user'); },
+    userProfile: function() {
+        return ReactiveMethod.call('getUserData', Session.get('user'));
+    },
     tweets: function() { 
         return ReactiveMethod.call('getTweets', Session.get('user'));
-    },
-    user: function() {
-        return Session.get('user');
     }
 });
 

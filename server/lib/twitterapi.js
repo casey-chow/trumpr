@@ -1,3 +1,19 @@
+///////////////////////////////////////////////////////////
+// DEPENDENCIES                                          //
+///////////////////////////////////////////////////////////
+var Twit = Meteor.npmRequire('twit');
+var T = new Twit({
+    consumer_key:        'FRkxZ28y55sbr8oScY6qNsVeQ',
+    consumer_secret:     'NmGUxz5NJAIT3lx4X4T5G0cLkr7MwYgoHkuZ52Np3vYZNz51m7',
+    access_token:        '3843303509-g3iFsHNxjVUfWml1wkPwwrvAuxzLhV5BZezLFzR', 
+    access_token_secret: 'iCh01KDauwYMj4mYfqOIIvWQFafNRGJz6AhXC9zM9daA5'
+});
+var tGet = Meteor.wrapAsync(T.get, T);
+
+///////////////////////////////////////////////////////////
+// EXTERNAL API                                          //
+///////////////////////////////////////////////////////////
+
 TwitterAPI = {};
 
 // retrieves a user's timeline (or part of it), in the
@@ -11,7 +27,18 @@ TwitterAPI.getTweets = function(user, direction) {
     }, {
         sort: { id: direction }
     }).fetch();
-}
+};
+
+TwitterAPI.getUserData = function(user) {
+    var data = twitterUsers.findOne({ screen_name: user })
+
+    if (!data) {
+        data = tGet('users/show', { screen_name: user });
+        twitterUsers.insert(_.pick(data, 'name', 'screen_name', 'profile_image_url'));
+    }
+
+    return data;
+};
 
 // add any new tweets to the database for a given user
 TwitterAPI.refreshTweets = function(user) {
@@ -36,15 +63,6 @@ Meteor.startup(function() {
 ///////////////////////////////////////////////////////////
 // TWEET RETRIEVAL                                       //
 ///////////////////////////////////////////////////////////
-
-var Twit = Meteor.npmRequire('twit');
-var T = new Twit({
-    consumer_key:        'FRkxZ28y55sbr8oScY6qNsVeQ',
-    consumer_secret:     'NmGUxz5NJAIT3lx4X4T5G0cLkr7MwYgoHkuZ52Np3vYZNz51m7',
-    access_token:        '3843303509-g3iFsHNxjVUfWml1wkPwwrvAuxzLhV5BZezLFzR', 
-    access_token_secret: 'iCh01KDauwYMj4mYfqOIIvWQFafNRGJz6AhXC9zM9daA5'
-});
-var tGet = Meteor.wrapAsync(T.get, T);
 
 // pulls as many tweets as possible from a user given constraints
 var pullTweets = function(user, options) {
