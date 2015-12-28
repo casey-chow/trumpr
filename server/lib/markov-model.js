@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////
-// EXTERNAL API                                          //
+// EXTERNAL API: TRAINING                                //
 ///////////////////////////////////////////////////////////
 
 MarkovModel = this.MarkovModel || {};
@@ -57,6 +57,10 @@ MarkovModel.presentRawMarkovModel = function(source) {
         return out;
     }, []);
 };
+
+///////////////////////////////////////////////////////////
+// EXTERNAL API: GENERATION                              //
+///////////////////////////////////////////////////////////
 
 Meteor.methods(MarkovModel);
 
