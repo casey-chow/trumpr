@@ -5,7 +5,7 @@
 <template name="layout">
     <div class="container">
         {{> navigation}}
-        <main class="row">
+        <main class="row layout-{{currentTemplate}}">
             {{> yield}}
         </main>
     </div>

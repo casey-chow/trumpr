@@ -58,4 +58,5 @@ Template.test.onDestroyed(function() {
     Session.set('user', undefined);
     Session.set('sourceText', undefined);
     Session.set('markovUser', undefined);
+    Session.set('genSourceText', undefined);
 });

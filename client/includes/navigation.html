@@ -8,22 +8,17 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a class="navbar-brand" href="#">Need More Donald?</a>
+                <a class="navbar-brand" href="/">Trumpr</a>
             </div>
 
             <div class="collapse navbar-collapse" id="navbar-collapse">
                 <ul class="nav navbar-nav">
-                    <li><a data-twitter-handle="realDonaldTrump">Donald Trump <span class="sr-only">(current)</span></a></li>
-                    <li><a data-twitter-handle="BarackObama">Barack Obama</a></li>
                     <li>
-                        <a href="{{pathFor 'test'}}">Testing</a>
+                        <a href="{{pathFor 'test'}}" class="{{active 'test'}}">
+                            Testing
+                        </a>
                     </li>
                 </ul>
-                <form class="navbar-form navbar-right" id="custom-handle">
-                    <div class="form-group">
-                        <input type="text" class="form-control" placeholder="Twitter Handle" />
-                    </div>
-                </form>
             </div>
 
         </div>
