@@ -11,6 +11,10 @@ Template.test.helpers({
     },
     markovModelLength: function() {
         return _.values(Template.test.__helpers.get('markovModel').call()).length;
+    },
+    markovUser: function() { return Session.get('markov-user'); },
+    markovTwets: function() {
+        return ReactiveMethod.call('getMarkovTweets', Session.get('markov-user'));
     }
 });
 

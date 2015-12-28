@@ -1,8 +1,8 @@
 <template name="test">
-    <section class="col-md-12">
+    <div class="col-md-12">
             {{!-- <button type="submit" class="btn btn-primary">Retrieve Tweets</button> --}}
-    </section>
-    <section class="col-md-6">
+    </div>
+    <div class="col-md-4">
         <form class="tweet-retrieval-input">
             <div class="form-group">
                 <label class="sr-only" for="screen-name">Screen Name</label>
@@ -34,8 +34,8 @@
             </div>
             {{/if}}
         </section>
-    </section>
-    <section class="col-md-6">
+    </div>
+    <div class="col-md-4">
         <form class="markov-model-input">
             <div class="form-group">
                 <label class="sr-only" for="markov-input">Source Text</label>
@@ -46,29 +46,50 @@
             <h2>Markov Model <small>{{markovModelLength}} Entries</small></h2>
 
             {{#with markovModel}}
-                <div class="markov-model-frequencies">
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>History</th>
-                                <th>Frequency Table</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {{#each markovModel}}
-                            <tr>
-                                <td><code>{{history}}</code></td>
-                                <td>
-                                    {{#each frequencies}}
-                                    <code>{{letter}}</code> {{freq}} 
-                                    {{/each}}
-                                </td>
-                            </tr>
-                            {{/each}}
-                        </tbody>
-                    </table>
-                </div>
+            <div class="markov-model-frequencies">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>History</th>
+                            <th>Frequency Table</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{#each markovModel}}
+                        <tr>
+                            <td><code>{{history}}</code></td>
+                            <td>
+                                {{#each frequencies}}
+                                <code>{{letter}}</code> {{freq}} 
+                                {{/each}}
+                            </td>
+                        </tr>
+                        {{/each}}
+                    </tbody>
+                </table>
+            </div>
             {{/with}}
         </section>
-    </section>
+    </div>
+    <div class="col-md-4">
+        <form class="twitter-markov-input">
+            <div class="form-group">
+                <label class="sr-only" for="markov-screen-name">Screen Name</label>
+                <div class="input-group">
+                  <div class="input-group-addon">@</div>
+                  <input type="text" class="form-control" id="markov-screen-name" placeholder="realDonaldTrump">
+                </div>
+            </div>
+        </form>
+        <section class="twitter-markov-model">
+            <h2>Markov Tweets</h2>
+            {{#if tweets}}
+            <div class="tweet-retrieval-tweets">
+                {{#each tweets}}
+                <p>{{text}}</p>
+                {{/each}}
+            </div>
+            {{/if}}
+        </section>
+    </div>
 </template>
