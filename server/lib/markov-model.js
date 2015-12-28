@@ -16,30 +16,29 @@ var order = 9;
 MarkovModel.trainMarkovModel = function(source) {
     var model = {};
 
-    // creates a repeated string of length order+1
-    // http://stackoverflow.com/a/1877479/237904
-    var pad = Array(order+1).join('~');
-    source = pad + source;
+    // append first `order` chars to allow circularity
+    source += source.substr(0, order);
 
     // count frequencies
     _.times(source.length - order, function(i) {
         var history = source.substr(i, order);
         var c = source.charAt(i + order);
+
         model[history] = model[history] || {};
         model[history][c] = model[history][c] || 0;
 
         model[history][c] += 1;
     });
 
-    // normalize
-    return _.mapValues(model, function(dist) {
-        var sum = _.reduce(_.values(dist), function(total, freq) {
-            return total + freq;
-        });
-        return _.mapValues(dist, function(freq) {
-           return freq / sum;
-        });
-    });
+    // // normalize
+    // return _.mapValues(model, function(dist) {
+    //     var sum = _.reduce(_.values(dist), function(total, freq) {
+    //         return total + freq;
+    //     });
+    //     return _.mapValues(dist, function(freq) {
+    //        return freq / sum;
+    //     });
+    // });
 };
 
 MarkovModel.presentRawMarkovModel = function(source) {
@@ -78,9 +77,8 @@ MarkovModel.generateText = function(model, seed, n) {
         return out + c;
     }, seed);
 };
-
+        
 Meteor.methods(MarkovModel);
-
 
 ///////////////////////////////////////////////////////////
 // GENERATION HELPERS                                    //
@@ -88,12 +86,26 @@ Meteor.methods(MarkovModel);
 
 // generates a single letter
 var generateLetter = function(model, history) {
-    var dist = model[history.slice(-order)];
-    if (!dist) return '';
-    x = Math.random();
-    return _.findKey(dist, function(v) {
-        x -= v;
+    var kgram = history.slice(-order);
+    if (!_.has(model, kgram)) return ' ';
+
+    var dist = model[kgram];
+
+    var x = Math.random();
+    return _.findKey(normalizeDist(dist), function(val) {
+        x -= val;
         return x <= 0;
+    });
+};
+
+// normalize the frequency table
+var normalizeDist = function(dist) {
+    var sum = _.reduce(_.values(dist), function(total, freq) {
+        return total + freq;
+    });
+
+    return _.mapValues(dist, function(freq) {
+       return freq / sum;
     });
 };
 
