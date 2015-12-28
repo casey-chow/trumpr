@@ -1,19 +1,20 @@
 ///////////////////////////////////////////////////////////
+// EXTERNAL API: CONFIGURATION                           //
+///////////////////////////////////////////////////////////
+
+MarkovModel = {};
+
+var separator = '`';
+var order = 9;
+
+///////////////////////////////////////////////////////////
 // EXTERNAL API: TRAINING                                //
 ///////////////////////////////////////////////////////////
 
-MarkovModel = this.MarkovModel || {};
-
-MarkovModel.trainFromUser = function(user) {
-    var tweets = TwitterAPI.getTweets(user, +1);
-    return MarkovModel.trainFromText(processTweets(tweets));
-};
-
 // given a text source, train a model
 // TODO: enable expanding off a given model
-MarkovModel.trainFromText = function(source) {
+MarkovModel.trainMarkovModel = function(source) {
     var model = {};
-    var order = MarkovModel.ORDER;
 
     // creates a repeated string of length order+1
     // http://stackoverflow.com/a/1877479/237904
@@ -44,17 +45,15 @@ MarkovModel.trainFromText = function(source) {
 MarkovModel.presentRawMarkovModel = function(source) {
     if (!source) return;
 
-    var model = MarkovModel.trainFromText(source);
+    var model = MarkovModel.trainMarkovModel(source);
     return _.reduce(model, function(out, dist, history) {
         dist = _.reduce(dist, function(out, freq, c) {
-            out.push({ freq: freq, letter: c });
-            return out;
+            return out.concat({ freq: freq, letter: c });
         }, []);
-        out.push({
+        return out.concat({
             history: history.replace(/\s/g, '¤'),
             frequencies: dist
         });
-        return out;
     }, []);
 };
 
@@ -62,28 +61,29 @@ MarkovModel.presentRawMarkovModel = function(source) {
 // EXTERNAL API: GENERATION                              //
 ///////////////////////////////////////////////////////////
 
+MarkovModel.generateText = function(model, seed, n) {
+    n = n || 200;
+    var history = seed;
+    return _.reduce(_.range(n), function(out) {
+        var c = generateLetter(model, history, order);
+        history += c;
+        return out + c;
+    }, seed);
+};
+
 Meteor.methods(MarkovModel);
 
+
 ///////////////////////////////////////////////////////////
-// TWEET PROCESSING                                      //
+// GENERATION HELPERS                                    //
 ///////////////////////////////////////////////////////////
 
-// process the tweets to be more suitable for
-var processTweets = function(tweets) {
-    tweets = _.pluck(tweets, 'text')
-    .map(function(tweet) {
-        if (tweet.charAt(0) == '"') return '';
-        return tweet
-        .replace('&amp;', '&')
-        .replace('.@', '@')
-        .replace(/https?:\/\/t.co\/\w+/, '')
-        .replace(/[\s]+/, ' ');
+// generates a single letter
+var generateLetter = function(model, history) {
+    var dist = model[history.slice(-order)];
+    x = Math.random();
+    return _.findKey(dist, function() {
+        x -= v;
+        return x <= 0;
     });
-
-    return tweets.join(MarkovModel.SEPARATOR);
-}
-
-
-///////////////////////////////////////////////////////////
-// MODEL TRAINING                                        //
-///////////////////////////////////////////////////////////
+};

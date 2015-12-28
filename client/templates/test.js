@@ -10,11 +10,11 @@ Template.test.helpers({
         return ReactiveMethod.call('presentRawMarkovModel', Session.get('sourceText'));
     },
     markovModelLength: function() {
-        return _.values(Template.test.__helpers.get('markovModel').call()).length;
+        return Template.test.__helpers.get('markovModel').call().length;
     },
-    markovUser: function() { return Session.get('markov-user'); },
-    markovTwets: function() {
-        return ReactiveMethod.call('getMarkovTweets', Session.get('markov-user'));
+    markovUser: function() { return Session.get('markovUser'); },
+    userMarkovModel: function() {
+        return ReactiveMethod.call('presentUserMarkovModel', Session.get('markovUser'));
     }
 });
 
@@ -30,10 +30,18 @@ Template.test.events({
 
         var sourceText = template.$('#markov-input').val();
         Session.set('sourceText', sourceText);
+    },
+    'submit .twitter-markov-input': function(event, template) {
+        event.preventDefault();
+
+        var markovUser = template.$('#markov-screen-name').val();
+        Session.set('markovUser', markovUser);
     }
+
 });
 
 Template.test.onDestroyed(function() {
     Session.set('user', undefined);
     Session.set('sourceText', undefined);
+    Session.set('markovUser', undefined);
 });

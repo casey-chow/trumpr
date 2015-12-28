@@ -19,14 +19,15 @@ TwitterAPI = {};
 // retrieves a user's timeline (or part of it), in the
 // direction specified, or in reverse chronological
 // by default
-TwitterAPI.getTweets = function(user, direction) {
+TwitterAPI.getTweets = function(user, direction, limit) {
     if (!user) return;
 
     direction = direction || -1;
     return realTweets.find({ 
         screen_name: user
     }, {
-        sort: { id: direction }
+        sort: { id: direction },
+        limit: limit
     }).fetch();
 };
 

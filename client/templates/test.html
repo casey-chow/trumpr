@@ -45,7 +45,7 @@
         <section class="markov-model">
             <h2>Markov Model <small>{{markovModelLength}} Entries</small></h2>
 
-            {{#with markovModel}}
+            {{#if markovModel}}
             <div class="markov-model-frequencies">
                 <table class="table table-striped">
                     <thead>
@@ -68,7 +68,7 @@
                     </tbody>
                 </table>
             </div>
-            {{/with}}
+            {{/if}}
         </section>
     </div>
     <div class="col-md-4">
@@ -81,15 +81,31 @@
                 </div>
             </div>
         </form>
-        <section class="twitter-markov-model">
-            <h2>Markov Tweets</h2>
-            {{#if tweets}}
-            <div class="tweet-retrieval-tweets">
-                {{#each tweets}}
-                <p>{{text}}</p>
-                {{/each}}
+        <h2>User Markov <small>@{{markovUser}}</small></h2>
+
+            {{#if userMarkovModel}}
+            <div class="markov-model-frequencies">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>History</th>
+                            <th>Frequency Table</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{#each userMarkovModel}}
+                        <tr>
+                            <td><code>{{history}}</code></td>
+                            <td>
+                                {{#each frequencies}}
+                                <code>{{letter}}</code> {{freq}} 
+                                {{/each}}
+                            </td>
+                        </tr>
+                        {{/each}}
+                    </tbody>
+                </table>
             </div>
             {{/if}}
-        </section>
     </div>
 </template>
