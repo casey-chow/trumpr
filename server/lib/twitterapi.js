@@ -21,6 +21,7 @@ TwitterAPI = {};
 // by default
 TwitterAPI.getTweets = function(user, direction) {
     if (!user) return;
+
     direction = direction || -1;
     return realTweets.find({ 
         screen_name: user
@@ -30,13 +31,13 @@ TwitterAPI.getTweets = function(user, direction) {
 };
 
 TwitterAPI.getUserData = function(user) {
-    var data = twitterUsers.findOne({ screen_name: user })
+    if (!user) return;
 
+    var data = twitterUsers.findOne({ screen_name: user })
     if (!data) {
         data = tGet('users/show', { screen_name: user });
         twitterUsers.insert(_.pick(data, 'name', 'screen_name', 'profile_image_url'));
     }
-
     return data;
 };
 

@@ -1,6 +1,9 @@
 <template name="test">
     <section class="col-md-12">
-        <form class="tweet-retrieval form-inline">
+            {{!-- <button type="submit" class="btn btn-primary">Retrieve Tweets</button> --}}
+    </section>
+    <section class="col-md-6">
+        <form class="tweet-retrieval-input">
             <div class="form-group">
                 <label class="sr-only" for="screen-name">Screen Name</label>
                 <div class="input-group">
@@ -8,10 +11,7 @@
                   <input type="text" class="form-control" id="screen-name" placeholder="realDonaldTrump">
                 </div>
             </div>
-            {{!-- <button type="submit" class="btn btn-primary">Retrieve Tweets</button> --}}
         </form>
-    </section>
-    <section class="col-md-6">
         <section class="user-profile">
             <h2>Profile</h2>
             {{#with userProfile}}

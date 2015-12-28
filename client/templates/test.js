@@ -14,12 +14,8 @@ Template.test.helpers({
     }
 });
 
-Template.test.onDestroyed(function() {
-    Session.set('sourceText', undefined);
-});
-
 Template.test.events({
-    'submit .tweet-retrieval': function(event, template) {
+    'submit .tweet-retrieval-input': function(event, template) {
         event.preventDefault();
 
         var screenName = template.$('#screen-name').val();
@@ -31,4 +27,9 @@ Template.test.events({
         var sourceText = template.$('#markov-input').val();
         Session.set('sourceText', sourceText);
     }
+});
+
+Template.test.onDestroyed(function() {
+    Session.set('user', undefined);
+    Session.set('sourceText', undefined);
 });
