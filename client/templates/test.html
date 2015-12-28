@@ -1,16 +1,18 @@
 <template name="test">
-    <div class="col-md-12">
-            {{!-- <button type="submit" class="btn btn-primary">Retrieve Tweets</button> --}}
-    </div>
-    <div class="col-md-4">
-        <form class="tweet-retrieval-input">
-            <div class="form-group">
+    <div class="col-md-3">
+        <form class="tweet-retrieval-input form-inline">
+            <div class="form-group tweet-name-group">
                 <label class="sr-only" for="screen-name">Screen Name</label>
                 <div class="input-group">
-                  <div class="input-group-addon">@</div>
-                  <input type="text" class="form-control" id="screen-name" placeholder="realDonaldTrump">
+                    <div class="input-group-addon">@</div>
+                    <input type="text" class="form-control" id="tweet-retrieval-screen-name" placeholder="realDonaldTrump">
                 </div>
             </div>
+            <div class="form-group length-group">
+                <label class="sr-only" for="tweet-retrieval-length">Length</label>
+                <input type="text" class="form-control" id="tweet-retrieval-length" size="4" placeholder="len">
+            </div>
+            <input type="submit" class="sr-only" />
         </form>
         <section class="user-profile">
             <h2>Profile</h2>
@@ -35,16 +37,17 @@
             {{/if}}
         </section>
     </div>
-    <div class="col-md-4">
+    <div class="col-md-3">
         <form class="markov-model-input">
             <div class="form-group">
                 <label class="sr-only" for="markov-input">Source Text</label>
                 <input type="text" class="form-control" id="markov-input" placeholder="Sample Text Here">
             </div>
+            <input type="submit" class="sr-only">
         </form>
         <section class="markov-model">
-            <h2>Markov Model <small>{{markovModelLength}} Entries</small></h2>
-
+            <h2>Markov Model<br/><small>{{markovModelLength}} Entries</small></h2>
+    
             {{#if markovModel}}
             <div class="markov-model-frequencies">
                 <table class="table table-striped">
@@ -71,18 +74,23 @@
             {{/if}}
         </section>
     </div>
-    <div class="col-md-4">
-        <form class="twitter-markov-input">
-            <div class="form-group">
+    <div class="col-md-3">
+        <form class="twitter-markov-input form-inline">
+            <div class="form-group tweet-name-group">
                 <label class="sr-only" for="markov-screen-name">Screen Name</label>
                 <div class="input-group">
                   <div class="input-group-addon">@</div>
                   <input type="text" class="form-control" id="markov-screen-name" placeholder="realDonaldTrump">
                 </div>
             </div>
+            <div class="form-group length-group">
+                <label class="sr-only" for="markov-length">Screen Name</label>
+                <input type="text" class="form-control" id="markov-length" size="3" placeholder="len">
+            </div>
+            <input type="submit" class="sr-only">
         </form>
-        <h2>User Markov <small>@{{markovUser}}</small></h2>
-
+        <h2>User Markov<br/><small>@{{markovUser}}</small></h2>
+    
             {{#if userMarkovModel}}
             <div class="markov-model-frequencies">
                 <table class="table table-striped">
@@ -107,5 +115,23 @@
                 </table>
             </div>
             {{/if}}
+    </div>
+    <div class="col-md-3">
+        <form class="markov-gen-input form-inline">
+            <div class="form-group name-group">
+                <label class="sr-only" for="markov-input">Source Text</label>
+                <input type="text" class="form-control" id="markov-gen-input" placeholder="Sample Text Here">
+            </div>
+            <div class="form-group length-group">
+                <label class="sr-only" for="markov-input">Output Length</label>
+                <input type="text" class="form-control" id="markov-gen-length-input" placeholder="len">
+            </div>
+            <input type="submit" class="sr-only">
+        </form>
+        <section class="markov-gen">
+            <h2>Markov Gen</h2>
+    
+            <pre class="markov-gen-output">{{markovModelGen}}</pre>
+        </section>
     </div>
 </template>

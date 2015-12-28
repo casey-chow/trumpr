@@ -61,8 +61,16 @@ MarkovModel.presentRawMarkovModel = function(source) {
 // EXTERNAL API: GENERATION                              //
 ///////////////////////////////////////////////////////////
 
+MarkovModel.generateTextFromSource = function(source, len) {
+    if (!source) return;
+    len = parseInt(len) || 100;
+
+    var model = MarkovModel.trainMarkovModel(source);
+    var seed = randomSeed(source);
+    return MarkovModel.generateText(model, seed, len);
+}
 MarkovModel.generateText = function(model, seed, n) {
-    n = n || 200;
+    n = parseInt(n) || 200;
     var history = seed;
     return _.reduce(_.range(n), function(out) {
         var c = generateLetter(model, history, order);
@@ -81,9 +89,15 @@ Meteor.methods(MarkovModel);
 // generates a single letter
 var generateLetter = function(model, history) {
     var dist = model[history.slice(-order)];
+    if (!dist) return '';
     x = Math.random();
-    return _.findKey(dist, function() {
+    return _.findKey(dist, function(v) {
         x -= v;
         return x <= 0;
     });
+};
+
+var randomSeed = function(source) {
+    var start = Math.floor(Math.random() * source.length);
+    return source.substr(start, order);
 };

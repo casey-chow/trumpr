@@ -27,7 +27,7 @@ TwitterAPI.getTweets = function(user, direction, limit) {
         screen_name: user
     }, {
         sort: { id: direction },
-        limit: limit
+        limit: parseInt(limit, 10)
     }).fetch();
 };
 
