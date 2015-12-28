@@ -3,6 +3,7 @@
 ///////////////////////////////////////////////////////////
 
 var separator = '`';
+var order = 9;
 
 ///////////////////////////////////////////////////////////
 // EXTERNAL API                                          //
@@ -17,7 +18,8 @@ MarkovTwitter.trainFromUser = function(user) {
 
 // train based off an array of tweets
 MarkovTwitter.trainFromTweets = function(tweets) {
-    return MarkovModel.trainMarkovModel(createSourceText(tweets));
+    var source = createSourceText(tweets);
+    return MarkovModel.trainMarkovModel(source);
 };
 
 MarkovTwitter.generateMarkovTweets = function(user, number) {
@@ -44,9 +46,9 @@ Meteor.methods(MarkovTwitter);
 var generateTweets = function(source, model, number) {
     return _.reduce(_.range(number), function(tweets) {
         var seed = createSeed(source);
-        var markovText = MarkovModel.generateText(model, order, seed);
+        var markovText = MarkovModel.generateText(model, seed);
         var nextTweet = truncate(markovText).replace(separator, ' ');
-        return tweets.concat(i);
+        return tweets.concat(nextTweet);
     }, []);
 };
 
@@ -86,17 +88,17 @@ var createSeed = function(source) {
 
 // truncates tweet to a suitable end, defined as the last separator 
 // marker or after the first punctuation mark that succeeds a letter
-var truncate = function(str) {
-    var searchSpace = resultTweets.slice(0, -1);
+var truncate = function(tweet) {
+    var searchSpace = tweet.slice(0, -1);
 
     var endSep = searchSpace.lastIndexOf(separator);
     var endPunc = _(searchSpace).findIndex(function(c, i) {
-        if (i <= 1) return false;
+        if (i < 2) return false;
         var isAlpha = searchSpace[i-2].match(/^[a-z]$/i);
         var precedesNonAlpha = searchSpace[i-1].match(/^[^a-z]$/i);
         return isAlpha && precedesNonAlpha;
     });
 
     var end = (endSep == -1) ? endPunc : endSep;
-    return str.slice(0, end);
+    return tweet.slice(0, end);
 };

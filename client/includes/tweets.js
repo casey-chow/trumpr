@@ -1,6 +1,9 @@
 Template.tweets.helpers({
     tweets: function(user) {
-        
+        return ReactiveMethod.call('generateMarkovTweets', user, 10);
+    },
+    userProfile: function(user) {
+        return ReactiveMethod.call('getUserData', user);
     }
 });
 

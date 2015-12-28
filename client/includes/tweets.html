@@ -1,24 +1,24 @@
 <template name="tweets">
     <section class="{{class}}">
         <header class="page-header">
-            <h1>Tweets <small>@{{author}}</small></h1>
+            <h1>Tweets <small>@realDonaldTrump</small></h1>
         </header>
         <ul class="list-group">
-            {{#each tweets}}
-                <li class="list-group-item" key={key}>
-                    <div>
-                        <div class="image">
-                            <img src={{picURL}} id="prof">
-                        </div>
-                        <div class="text">
-                            <div class="textHead">
-                                <b>{{authorFullName}}</b>
-                                <font color="gray"><small>@{{authorHandle}} · {{date}}</small></font>
-                            </div> 
-                            {{text}}
-                        </div>
+            {{#each tweets 'realDonaldTrump'}}
+            <li class="list-group-item">
+                <div>
+                    {{!-- <div class="image">
+                        <img src={{picURL}} id="prof">
+                    </div> --}}
+                    <div class="text">
+                       {{!--  <div class="textHead">
+                            <b>{{authorFullName}}</b>
+                            <font color="gray"><small>@{{authorHandle}} · {{date}} </small></font>
+                        </div> --}}
+                        {{this}}
                     </div>
-                </li>
+                </div>
+            </li>
             {{/each}}
         </ul>
     </section>

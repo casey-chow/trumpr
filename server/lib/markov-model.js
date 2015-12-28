@@ -30,15 +30,7 @@ MarkovModel.trainMarkovModel = function(source) {
         model[history][c] += 1;
     });
 
-    // // normalize
-    // return _.mapValues(model, function(dist) {
-    //     var sum = _.reduce(_.values(dist), function(total, freq) {
-    //         return total + freq;
-    //     });
-    //     return _.mapValues(dist, function(freq) {
-    //        return freq / sum;
-    //     });
-    // });
+    return model;
 };
 
 MarkovModel.presentRawMarkovModel = function(source) {
@@ -67,15 +59,15 @@ MarkovModel.generateTextFromSource = function(source, len) {
     var model = MarkovModel.trainMarkovModel(source);
     var seed = randomSeed(source);
     return MarkovModel.generateText(model, seed, len);
-}
+};
+
 MarkovModel.generateText = function(model, seed, n) {
     n = parseInt(n) || 200;
-    var history = seed;
-    return _.reduce(_.range(n), function(out) {
-        var c = generateLetter(model, history, order);
-        history += c;
-        return out + c;
-    }, seed);
+    var out = seed;
+    _.times(n, function() {
+        out += generateLetter(model, out);
+    });
+    return out;
 };
         
 Meteor.methods(MarkovModel);
@@ -90,7 +82,6 @@ var generateLetter = function(model, history) {
     if (!_.has(model, kgram)) return ' ';
 
     var dist = model[kgram];
-
     var x = Math.random();
     return _.findKey(normalizeDist(dist), function(val) {
         x -= val;
