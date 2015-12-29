@@ -29,10 +29,10 @@ MarkovTwitter.generateMarkovTweets = function(user, number) {
     number = number || 200;
 
     tweets = [];
-    _.times(number, function(tweets) {
+    _.times(number, function() {
         var seed = createSeed(source);
         var markovText = MarkovModel.generateText(model, seed);
-        var nextTweet = truncate(markovText).replace(separator, ' ');
+        var nextTweet = cleanGeneratedTweet(markovText);
         tweets.push(nextTweet);
     });
     return tweets;
@@ -85,8 +85,10 @@ var createSeed = function(source) {
 };
 
 // truncates tweet to a suitable end, defined as the last separator 
-// marker or after the first punctuation mark that succeeds a letter
-var truncate = function(tweet) {
+// marker or after the first punctuation mark that succeeds a letter,
+// then removes separator characters and collapses repeated spaces
+// into single spaces
+var cleanGeneratedTweet = function(tweet) {
     var searchSpace = tweet.slice(0, -1);
 
     var endSep = searchSpace.lastIndexOf(separator);
@@ -98,5 +100,7 @@ var truncate = function(tweet) {
     });
 
     var end = (endSep == -1) ? endPunc : endSep;
-    return tweet.slice(0, end);
+    return tweet.slice(0, end)
+    .replace(new RegExp(separator, 'g'), ' ')
+    .replace(/\s+/g, ' ');
 };

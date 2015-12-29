@@ -76,7 +76,6 @@ Meteor.methods(MarkovModel);
 // GENERATION HELPERS                                    //
 ///////////////////////////////////////////////////////////
 
-// generates a single letter
 var generateLetter = function(model, history) {
     var kgram = history.slice(-order);
     if (!_.has(model, kgram)) return ' ';
@@ -91,9 +90,7 @@ var generateLetter = function(model, history) {
 
 // normalize the frequency table
 var normalizeDist = function(dist) {
-    var sum = _.reduce(_.values(dist), function(total, freq) {
-        return total + freq;
-    });
+    var sum = _.reduce(_.values(dist), _.add);
 
     return _.mapValues(dist, function(freq) {
        return freq / sum;
