@@ -49,14 +49,9 @@ TwitterAPI.refreshTweets = function(user) {
     var timeDifference = Date.now() - lastRefreshed[user];
     if (timeDifference < refreshThrottle) return;
 
-    try {
-        var newTweets = pullNewTweets(user, youngestTweetId(user));
-        var oldTweets = pullOldTweets(user, oldestTweetId(user));
-    } catch (err) {
-        console.error('Error when refreshing', user, 'Twitter API over capacity.');
-        return;
-    }
-    
+    var newTweets = pullNewTweets(user, youngestTweetId(user));
+    var oldTweets = pullOldTweets(user, oldestTweetId(user));
+
     var allTweets = newTweets.concat(oldTweets);
     allTweets.forEach(function(tweet) {
         realTweets.upsert({ id: tweet.id }, tweet);
@@ -65,7 +60,10 @@ TwitterAPI.refreshTweets = function(user) {
     lastRefreshed[user] = new Date();
 };
 
-Meteor.methods(TwitterAPI);
+Meter.methods(_.pick(TwitterAPI, [
+    'getTweets', 
+    'getUserData'
+]));
 
 Meteor.startup(function() {
     realTweets.before.find(function(userId, selector, options) {
@@ -89,15 +87,16 @@ var pullTweets = function(user, options) {
         trim_user: true
     });
 
-    var tweets = tGet('statuses/user_timeline', options);
-    return _.map(tweets, function(tweet) { 
+    try {
+        var tweets = tGet('statuses/user_timeline', options);
+    } catch (err) {
+        console.error('Error when refreshing', user, 'Twitter API over capacity.');
+        return [];
+    }
+
+    return tweets.map(function(tweet) { 
         tweet.screen_name = user;
-        return _.pick(tweet, [
-            'id', 
-            'created_at', 
-            'text', 
-            'screen_name'
-        ]);
+        return _.pick(tweet, ['id', 'created_at', 'text', 'screen_name']);
     });
 };
 
