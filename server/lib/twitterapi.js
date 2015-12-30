@@ -10,6 +10,9 @@ var T = new Twit({
 });
 var tGet = Meteor.wrapAsync(T.get, T);
 
+var lastRefreshed = {};
+var refreshThrottle = 15 * 60 * 1000; // 15 minutes, in milliseconds
+
 ///////////////////////////////////////////////////////////
 // EXTERNAL API                                          //
 ///////////////////////////////////////////////////////////
@@ -32,31 +35,34 @@ TwitterAPI.getTweets = function(user, direction, limit) {
 };
 
 TwitterAPI.getUserData = function(user) {
-    if (!user) return;
-
     var data = twitterUsers.findOne({ screen_name: user })
     if (!data) {
-        data = tGet('users/show', { screen_name: user });
-        twitterUsers.insert(_.pick(data, 'name', 'screen_name', 'profile_image_url'));
+        data = _(tGet('users/show', { screen_name: user }))
+               .pick('name', 'screen_name', 'profile_image_url');
+        twitterUsers.insert(data);
     }
     return data;
 };
 
 // add any new tweets to the database for a given user
 TwitterAPI.refreshTweets = function(user) {
+    var timeDifference = Date.now() - lastRefreshed[user];
+    if (timeDifference < refreshThrottle) return;
+
     try {
         var newTweets = pullNewTweets(user, youngestTweetId(user));
         var oldTweets = pullOldTweets(user, oldestTweetId(user));
     } catch (err) {
-        console.error('twitter api over capacity');
-        newTweets = oldTweets = [];
+        console.error('Error when refreshing', user, 'Twitter API over capacity.');
+        return;
     }
     
     var allTweets = newTweets.concat(oldTweets);
-
     allTweets.forEach(function(tweet) {
         realTweets.upsert({ id: tweet.id }, tweet);
     });
+
+    lastRefreshed[user] = new Date();
 };
 
 Meteor.methods(TwitterAPI);

@@ -22,6 +22,7 @@ MarkovTwitter.trainFromTweets = function(tweets) {
     return MarkovModel.trainMarkovModel(source);
 };
 
+
 // TODO: rewrite as iterator
 MarkovTwitter.generateMarkovTweets = function(user, number) {
     var source = createSourceText(TwitterAPI.getTweets(user, +1));
