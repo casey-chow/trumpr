@@ -79,7 +79,9 @@ var createSeed = function(source) {
     // find first suitable start for the tweet
     searchSpace = searchSpace.slice(lastEnd, -300);
     var start = _(searchSpace).findIndex(function(c, i) {
-        return c.match(/^[a-z@#]$/i) && searchSpace.charAt(i + 1) != '.';
+        return c.match(/^[a-z@#]$/i) 
+            && searchSpace.charAt(i + 1) != '.'
+            && searchSpace.charAt(i - 1) != '.';
     });
 
     return searchSpace.substr(start, order);
