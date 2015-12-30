@@ -19,7 +19,7 @@ MarkovTwitter.trainFromUser = function(user) {
 // train based off an array of tweets
 MarkovTwitter.trainFromTweets = function(tweets) {
     var source = createSourceText(tweets);
-    return MarkovModel.trainMarkovModel(source);
+    return MarkovModel.modelFromText(source).model;
 };
 
 
@@ -39,10 +39,10 @@ MarkovTwitter.generateMarkovTweets = function(user, number) {
     return tweets.filter(function(tweet) { return tweet.length > 15; });
 };
 
-MarkovTwitter.presentUserMarkovModel = function(user) {
+MarkovTwitter.presentUserMarkovModel = function(user, rows) {
     if (!user) return;
-    var source = createSourceText(TwitterAPI.getTweets(user, +1, 50));
-    return MarkovModel.presentRawMarkovModel(source);  
+    var source = createSourceText(TwitterAPI.getTweets(user, +1));
+    return MarkovModel.presentableModelFromText(source).slice(0, rows);
 };
 
 Meteor.methods(MarkovTwitter);

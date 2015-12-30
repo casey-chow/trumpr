@@ -7,7 +7,7 @@ Template.test.helpers({
         return ReactiveMethod.call('getTweets', Session.get('user'), -1,Session.get('tweetRetrievalLength'));
     },
     markovModel: function() {
-        return ReactiveMethod.call('presentRawMarkovModel', Session.get('sourceText'));
+        return ReactiveMethod.call('presentableModelFromText', Session.get('sourceText'));
     },
     markovModelLength: function() {
         return _.values(Template.test.__helpers.get('markovModel').call()).length;

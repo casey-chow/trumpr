@@ -33,6 +33,8 @@ TwitterAPI.getTweets = function(user, direction, limit) {
 };
 
 TwitterAPI.getUserData = function(user) {
+    if (!user) return;
+
     var data = twitterUsers.findOne({ screen_name: user });
     if (data) return data;
 

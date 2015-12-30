@@ -11,9 +11,71 @@ var order = 9;
 // EXTERNAL API: TRAINING                                //
 ///////////////////////////////////////////////////////////
 
+MarkovModel.modelFromText = function(source) {
+    source = sanitizeSourceText(source);
+    var model = markovModels.findOne({ sourceText: source });
+    if (model) return model;
+
+    model = trainMarkovModel(source);
+    markovModels.insert({
+        model: model,
+        sourceText: source,
+        createdAt: new Date()
+    });
+    return model;
+};
+
+MarkovModel.presentableModelFromText = function(source) {
+    if (!source) return;
+
+    var model = MarkovModel.modelFromText(source).model;
+
+    var out = [];
+    _.each(model, function(dist, history) {
+        var _dist = [];
+        _.each(dist, function(freq, chr) {
+            _dist.push({ freq: freq, letter: chr });
+        });
+
+        out.push({
+            history: history.replace(/\s/g, '¤'),
+            frequencies: _dist
+        });
+    });
+    return out;
+};
+
+///////////////////////////////////////////////////////////
+// EXTERNAL API: GENERATION                              //
+///////////////////////////////////////////////////////////
+
+MarkovModel.generateTextFromSource = function(source, length) {
+    if (!source) return;
+
+    var model = MarkovModel.modelFromText(source);
+    var seed = randomSeed(source);
+    return MarkovModel.generateText(model, seed, length);
+};
+
+MarkovModel.generateText = function(model, seed, length) {
+    length = parseInt(length) || 200;
+
+    var out = seed;
+    _.times(length, function() {
+        out += generateLetter(model, out);
+    });
+    return desanitizeSourceText(out);
+};
+        
+Meteor.methods(MarkovModel);
+
+///////////////////////////////////////////////////////////
+// TRAINING HELPERS                                      //
+///////////////////////////////////////////////////////////
+
 // given a text source, train a model
 // TODO: enable expanding off a given model
-MarkovModel.trainMarkovModel = function(source) {
+var trainMarkovModel = function(source) {
     var model = {};
 
     // append first `order` chars to allow circularity
@@ -32,45 +94,6 @@ MarkovModel.trainMarkovModel = function(source) {
 
     return model;
 };
-
-MarkovModel.presentRawMarkovModel = function(source) {
-    if (!source) return;
-
-    var model = MarkovModel.trainMarkovModel(source);
-    return _.reduce(model, function(out, dist, history) {
-        dist = _.reduce(dist, function(out, freq, c) {
-            return out.concat({ freq: freq, letter: c });
-        }, []);
-        return out.concat({
-            history: history.replace(/\s/g, '¤'),
-            frequencies: dist
-        });
-    }, []);
-};
-
-///////////////////////////////////////////////////////////
-// EXTERNAL API: GENERATION                              //
-///////////////////////////////////////////////////////////
-
-MarkovModel.generateTextFromSource = function(source, len) {
-    if (!source) return;
-    len = parseInt(len) || 100;
-
-    var model = MarkovModel.trainMarkovModel(source);
-    var seed = randomSeed(source);
-    return MarkovModel.generateText(model, seed, len);
-};
-
-MarkovModel.generateText = function(model, seed, n) {
-    n = parseInt(n) || 200;
-    var out = seed;
-    _.times(n, function() {
-        out += generateLetter(model, out);
-    });
-    return out;
-};
-        
-Meteor.methods(MarkovModel);
 
 ///////////////////////////////////////////////////////////
 // GENERATION HELPERS                                    //
@@ -100,4 +123,31 @@ var normalizeDist = function(dist) {
 var randomSeed = function(source) {
     var start = Math.floor(Math.random() * source.length);
     return source.substr(start, order);
+};
+
+///////////////////////////////////////////////////////////
+// SERIALIAZATION HELPERS                                //
+///////////////////////////////////////////////////////////
+
+// these methods are necessary to serialize the markov chains
+// MongoDB does not allow periods (.) or dollar signs ($) in
+// their field names
+
+var sanitationMap = {
+    '.': '\u13AF',
+    '$': '\u13B0'
+};
+
+var sanitizeSourceText = function(str) {
+    _.each(sanitationMap, function(replacement, source) {
+        str = str.replace(new RegExp('\\' + source, 'g'), replacement); 
+    });
+    return str;
+};
+
+var desanitizeSourceText = function(str) {
+    _.each(sanitationMap, function(replacement, source) {
+       str = str.replace(new RegExp(replacement, 'g'), source); 
+    });
+    return str;
 };
