@@ -44,8 +44,14 @@ TwitterAPI.getUserData = function(user) {
 
 // add any new tweets to the database for a given user
 TwitterAPI.refreshTweets = function(user) {
-    var newTweets = pullNewTweets(user, youngestTweetId(user));
-    var oldTweets = pullOldTweets(user, oldestTweetId(user));
+    try {
+        var newTweets = pullNewTweets(user, youngestTweetId(user));
+        var oldTweets = pullOldTweets(user, oldestTweetId(user));
+    } catch (err) {
+        console.error('twitter api over capacity');
+        newTweets = oldTweets = [];
+    }
+    
     var allTweets = newTweets.concat(oldTweets);
 
     allTweets.forEach(function(tweet) {
@@ -67,6 +73,7 @@ Meteor.startup(function() {
 ///////////////////////////////////////////////////////////
 
 // pulls as many tweets as possible from a user given constraints
+// TODO: implement user specific throttling
 var pullTweets = function(user, options) {
     _.defaults(options, {
         count: 200,

@@ -35,7 +35,7 @@ MarkovTwitter.generateMarkovTweets = function(user, number) {
         var nextTweet = cleanGeneratedTweet(markovText);
         tweets.push(nextTweet);
     });
-    return tweets;
+    return tweets.filter(function(tweet) { return tweet.length > 15; });
 };
 
 MarkovTwitter.presentUserMarkovModel = function(user) {

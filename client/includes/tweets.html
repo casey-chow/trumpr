@@ -1,25 +1,27 @@
 <template name="tweets">
-    <section class="{{class}}">
+    <section class="tweets {{class}}">
+        {{#with user 'realDonaldTrump'}}
         <header class="page-header">
             <h1>Tweets <small>@realDonaldTrump</small></h1>
         </header>
         <ul class="list-group">
-            {{#each tweets 'realDonaldTrump'}}
-            <li class="list-group-item">
+            {{#each tweet in tweets}}
+            <li class="list-group-item clearfix">
                 <div>
-                    {{!-- <div class="image">
-                        <img src={{picURL}} id="prof">
-                    </div> --}}
-                    <div class="text">
-                       {{!--  <div class="textHead">
-                            <b>{{authorFullName}}</b>
-                            <font color="gray"><small>@{{authorHandle}} · {{date}} </small></font>
-                        </div> --}}
-                        {{this}}
+                    <div class="profile-picture-container">
+                        <img src={{profile_image_url}} class="profile-picture">
+                    </div>
+                    <div class="tweet-text">
+                        <span class="text-head">
+                            <strong>{{name}}</strong>
+                            <small class="meta">@{{screen_name}} · {{date}} </small>
+                        </span>
+                        {{tweet}}
                     </div>
                 </div>
             </li>
             {{/each}}
         </ul>
+        {{/with}}
     </section>
 </template>
