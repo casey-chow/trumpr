@@ -73,7 +73,7 @@ MarkovModel = class {
     // PRESENTATION                                      //
     ///////////////////////////////////////////////////////
 
-    presentable() {
+    presentable(rows) {
         if (!this.model) return [];
         return reduceObject(model, (dist, history) => {
             return {
@@ -82,7 +82,7 @@ MarkovModel = class {
                     (freq, letter) => { freq, letter }
                 )
             };
-        });
+        }).slice(0, rows);
     }
 
     testGenerate(length) {

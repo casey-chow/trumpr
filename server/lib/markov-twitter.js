@@ -9,53 +9,70 @@ const order = 9;
 // EXTERNAL API                                          //
 ///////////////////////////////////////////////////////////
 
-MarkovTwitter = {};
+MarkovTwitter = class {
 
-// train based off a twitter username
-MarkovTwitter.modelFromUser = function(user) {
-    return MarkovTwitter.modelFromTweets(TwitterAPI.getTweets(user, +1));
-};
+    ///////////////////////////////////////////////////////
+    // CONSTRUCTION                                      //
+    ///////////////////////////////////////////////////////
 
-MarkovTwitter.presentableModelFromUser = function(user, rows) {
-    if (!user) return;
-    var source = createSourceText(TwitterAPI.getTweets(user, +1));
-    return MarkovModel.fromText(source).presentable().slice(0, rows);
-};
-
-// train based off an array of tweets
-MarkovTwitter.modelFromTweets = function(tweets) {
-    var source = createSourceText(tweets);
-    return MarkovModel.fromText(source);
-};
-
-// TODO: rewrite as iterator
-MarkovTwitter.generateMarkovTweets = function(user, number = 10) {
-    if (!user) return [];
-    log.info('generating tweets for', user);
-    console.time('source creation');
-    var source = createSourceText(TwitterAPI.getTweets(user, +1));
-    console.timeEnd('source creation');
-    var model = MarkovTwitter.modelFromUser(user);
-
-    tweets = [];
-    while (tweets.length <= number) {
-        let seed       = createSeed(source);
-        let markovText = model.generate(seed);
-        let nextTweet  = cleanGeneratedTweet(markovText);
-        if (nextTweet.length > 15) tweets.push(nextTweet);
+    constructor (tweets, user) {
+        this.sourceTweets   = createSourceText(tweets);
+        this.sourceUser     = user;
+        this.markovModel    = MarkovModel;
     }
 
-    return tweets;
+    static fromTweets(tweets) {
+        return new MarkovTwitter(tweets);
+    }
+
+    static fromUser(user) {
+        var tweets = TwitterAPI.forUser(user).tweets(user, +1);
+        return new MarkovTwitter(tweets, user);
+    }
+
+    presentable(rows) {
+        return this.markovModel.presentable(rows);
+    }
+
+    ///////////////////////////////////////////////////////
+    // GENERATION                                        //
+    ///////////////////////////////////////////////////////
+
+    generate(number = 10) {
+        log.info('generating tweets for', this.sourceUser);
+        if (!this.sourceUser) return [];
+
+        var tweets = [];
+        while (tweets.length <= number) {
+            let seed       = createSeed(source);
+            let markovText = this.model.generate(seed);
+            let nextTweet  = cleanGeneratedTweet(markovText);
+            if (nextTweet.length > 15) tweets.push(nextTweet);
+        }
+
+        return tweets;
+    };
 };
 
-Meteor.methods(MarkovTwitter);
+///////////////////////////////////////////////////////////
+// METEOR METHODS                                        //
+///////////////////////////////////////////////////////////
+        
+Meteor.methods({
+    presentableModelFromUser(user, rows) {
+        return MarkovTwitter.fromUser(user).presentable(rows);
+    },
+    generateMarkovTweets(user, length) {
+        return MarkovTwitter.fromUser(user).generate(length);
+    }
+});
 
 ///////////////////////////////////////////////////////////
 // TWEET PROCESSING                                      //
 ///////////////////////////////////////////////////////////
 
 // converts a list of tweets into usable source text
-var createSourceText = function(tweets) {
+function createSourceText(tweets) {
     if (!tweets) return '';
     return _.pluck(tweets, 'text')
     .map(tweet => {
@@ -71,7 +88,7 @@ var createSourceText = function(tweets) {
 };
 
 // selects a suitable seed for the tweet to start with
-var createSeed = function(source) {
+function createSeed(source) {
     var randIndex = Math.floor(Math.random() * (source.length - 500));
 
     // find random suitable end of a "previous" tweet
@@ -95,7 +112,7 @@ var createSeed = function(source) {
 // marker or after the first punctuation mark that succeeds a letter,
 // then removes separator characters and collapses repeated spaces
 // into single spaces
-var cleanGeneratedTweet = function(tweet) {
+function cleanGeneratedTweet(tweet) {
     if (!tweet) return '';
     var searchSpace = tweet.slice(0, -1);
 
