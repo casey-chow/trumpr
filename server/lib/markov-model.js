@@ -4,8 +4,8 @@
 
 MarkovModel = {};
 
-var separator = '`';
-var order = 9;
+const separator = '`';
+const order = 9;
 
 ///////////////////////////////////////////////////////////
 // EXTERNAL API: TRAINING                                //
@@ -26,14 +26,14 @@ MarkovModel.modelFromText = function(source) {
 };
 
 MarkovModel.presentableModelFromText = function(source) {
-    if (!source) return;
+    if (!source) return [];
 
     var model = MarkovModel.modelFromText(source).model;
 
     var out = [];
     _.each(model, function(dist, history) {
         var _dist = [];
-        _.each(dist, function(freq, chr) {
+        _.each(dist, (freq, chr) => {
             _dist.push({ freq: freq, letter: chr });
         });
 
@@ -58,12 +58,13 @@ MarkovModel.generateTextFromSource = function(source, length) {
 };
 
 MarkovModel.generateText = function(model, seed, length) {
-    length = parseInt(length) || 200;
-
     var out = seed;
+    length = length || 200;
+
     _.times(length, function() {
         out += generateLetter(model, out);
     });
+
     return desanitizeSourceText(out);
 };
         
@@ -82,7 +83,7 @@ var trainMarkovModel = function(source) {
     source += source.substr(0, order);
 
     // count frequencies
-    _.times(source.length - order, function(i) {
+    _.times(source.length - order, (i) => {
         var history = source.substr(i, order);
         var c = source.charAt(i + order);
 
@@ -105,7 +106,7 @@ var generateLetter = function(model, history) {
 
     var dist = model[kgram];
     var x = Math.random();
-    return _.findKey(normalizeDist(dist), function(val) {
+    return _.findKey(normalizeDist(dist), val => {
         x -= val;
         return x <= 0;
     });
@@ -114,10 +115,7 @@ var generateLetter = function(model, history) {
 // normalize the frequency table
 var normalizeDist = function(dist) {
     var sum = _.reduce(_.values(dist), _.add);
-
-    return _.mapValues(dist, function(freq) {
-       return freq / sum;
-    });
+    return _.mapValues(dist, freq => freq / sum);
 };
 
 var randomSeed = function(source) {
@@ -139,14 +137,14 @@ var sanitationMap = {
 };
 
 var sanitizeSourceText = function(str) {
-    _.each(sanitationMap, function(replacement, source) {
+    _.each(sanitationMap, (replacement, source) => {
         str = str.replace(new RegExp('\\' + source, 'g'), replacement); 
     });
     return str;
 };
 
 var desanitizeSourceText = function(str) {
-    _.each(sanitationMap, function(replacement, source) {
+    _.each(sanitationMap, (replacement, source) => {
        str = str.replace(new RegExp(replacement, 'g'), source); 
     });
     return str;

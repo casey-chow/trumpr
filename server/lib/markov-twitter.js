@@ -2,8 +2,8 @@
 // CONFIGURATION                                         //
 ///////////////////////////////////////////////////////////
 
-var separator = '`';
-var order = 9;
+const separator = '`';
+const order = 9;
 
 ///////////////////////////////////////////////////////////
 // EXTERNAL API                                          //
@@ -22,24 +22,31 @@ MarkovTwitter.trainFromTweets = function(tweets) {
     return MarkovModel.modelFromText(source).model;
 };
 
-
 // TODO: rewrite as iterator
-MarkovTwitter.generateMarkovTweets = function(user, number) {
+MarkovTwitter.generateMarkovTweets = function(user, number = 10) {
+    if (!user) return [];
+    console.info('generating tweets for', user);
+    console.time('tweet-gen');
+    console.time('tweet-gen-init');
     var source = createSourceText(TwitterAPI.getTweets(user, +1));
     var model = MarkovTwitter.trainFromUser(user);
-    number = number || 200;
+    console.timeEnd('tweet-gen-init');
 
     tweets = [];
-    _.times(number, function() {
-        var seed = createSeed(source);
-        var markovText = MarkovModel.generateText(model, seed);
-        var nextTweet = cleanGeneratedTweet(markovText);
-        tweets.push(nextTweet);
-    });
-    return tweets.filter(function(tweet) { return tweet.length > 15; });
+    while (tweets.length <= number) {
+        console.time('tweet-gen-' + user);
+        let seed       = createSeed(source);
+        let markovText = MarkovModel.generateText(model, seed);
+        let nextTweet  = cleanGeneratedTweet(markovText);
+        if (nextTweet.length > 15) tweets.push(nextTweet);
+        console.timeEnd('tweet-gen-' + user);
+    }
+    console.timeEnd('tweet-gen');
+
+    return tweets;
 };
 
-MarkovTwitter.presentUserMarkovModel = function(user, rows) {
+MarkovTwitter.presentableModelFromUser = function(user, rows) {
     if (!user) return;
     var source = createSourceText(TwitterAPI.getTweets(user, +1));
     return MarkovModel.presentableModelFromText(source).slice(0, rows);
@@ -55,7 +62,7 @@ Meteor.methods(MarkovTwitter);
 var createSourceText = function(tweets) {
     if (!tweets) return '';
     return _.pluck(tweets, 'text')
-    .map(function(tweet) {
+    .map(tweet => {
         if (tweet.charAt(0) == '"') return '';
         return tweet
         .replace('&amp;', '&')
@@ -72,17 +79,17 @@ var createSeed = function(source) {
 
     // find random suitable end of a "previous" tweet
     var searchSpace = source.slice(randIndex, -500);
-    var lastEnd = _(searchSpace).findIndex(function(c) {
-        return c == separator || c == '.' || c == '?' || c == '!';
-    });
+    var lastEnd = _(searchSpace).findIndex(c => 
+         c == separator || c == '.' || c == '?' || c == '!'
+    );
 
     // find first suitable start for the tweet
     searchSpace = searchSpace.slice(lastEnd, -300);
-    var start = _(searchSpace).findIndex(function(c, i) {
-        return c.match(/^[a-z@#]$/i) 
-            && searchSpace.charAt(i + 1) != '.'
-            && searchSpace.charAt(i - 1) != '.';
-    });
+    var start = _(searchSpace).findIndex((c, i, str) =>
+        c.match(/^[a-z@#]$/i)    && 
+        str.charAt(i + 1) != '.' && 
+        str.charAt(i - 1) != '.'
+    );
 
     return searchSpace.substr(start, order);
 };
@@ -92,10 +99,11 @@ var createSeed = function(source) {
 // then removes separator characters and collapses repeated spaces
 // into single spaces
 var cleanGeneratedTweet = function(tweet) {
+    if (!tweet) return '';
     var searchSpace = tweet.slice(0, -1);
 
     var endSep = searchSpace.lastIndexOf(separator);
-    var endPunc = _(searchSpace).findIndex(function(c, i) {
+    var endPunc = _(searchSpace).findIndex((c, i) => {
         if (i < 2) return false;
         var isAlpha = searchSpace[i-2].match(/^[a-z]$/i);
         var precedesNonAlpha = searchSpace[i-1].match(/^[^a-z]$/i);

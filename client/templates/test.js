@@ -1,28 +1,30 @@
 Template.test.helpers({
-    user: function() { return Session.get('user'); },
-    userProfile: function() {
-        return ReactiveMethod.call('getUserData', Session.get('user'));
-    },
-    tweets: function() { 
-        return ReactiveMethod.call('getTweets', Session.get('user'), -1,Session.get('tweetRetrievalLength'));
-    },
-    markovModel: function() {
-        return ReactiveMethod.call('presentableModelFromText', Session.get('sourceText'));
-    },
-    markovModelLength: function() {
-        return _.values(Template.test.__helpers.get('markovModel').call()).length;
-    },
-    markovUser: function() { return Session.get('markovUser'); },
-    userMarkovModel: function() {
-        return ReactiveMethod.call('presentUserMarkovModel', Session.get('markovUser'), Session.get('markovUserLength'));
-    },
-    markovModelGen: function() {
-        return ReactiveMethod.call('generateTextFromSource', Session.get('genSourceText'), Session.get('genSourceTextLen'));
-    }
+    user: () => Session.get('user'),
+    markovUser: () => Session.get('markovUser'),
+
+    userProfile: () => ReactiveMethod.call('getUserData', Session.get('user')),
+    tweets: () => ReactiveMethod.call('getTweets',
+        Session.get('user'), 
+        -1,
+        Session.get('tweetRetrievalLength')
+    ),
+
+    markovModel: () => ReactiveMethod.call('presentableModelFromText', Session.get('sourceText')),
+    markovModelLength: () => _.values(Template.test.__helpers.get('markovModel').call()).length,
+
+    userMarkovModel: () => ReactiveMethod.call('presentableModelFromUser', 
+        Session.get('markovUser'), 
+        Session.get('markovUserLength')
+    ),
+
+    markovModelGen: () => ReactiveMethod.call('generateTextFromSource',
+        Session.get('genSourceText'), 
+        Session.get('genSourceTextLen')
+    )
 });
 
 Template.test.events({
-    'submit .tweet-retrieval-input': function(event, template) {
+    'submit .tweet-retrieval-input': (event, template) => {
         event.preventDefault();
 
         var screenName = template.$('#tweet-retrieval-screen-name').val();
@@ -30,13 +32,13 @@ Template.test.events({
         var len = template.$('#tweet-retrieval-length').val();
         Session.set('tweetRetrievalLength', len || 30);
     },
-    'submit .markov-model-input': function(event, template) {
+    'submit .markov-model-input': (event, template) => {
         event.preventDefault();
 
         var sourceText = template.$('#markov-input').val();
         Session.set('sourceText', sourceText);
     },
-    'submit .twitter-markov-input': function(event, template) {
+    'submit .twitter-markov-input': (event, template) => {
         event.preventDefault();
 
         var markovUser = template.$('#markov-screen-name').val();
@@ -44,17 +46,17 @@ Template.test.events({
         var markovLength = template.$('#markov-length').val();
         Session.set('markovUserLength', markovLength);
     },
-    'submit .markov-gen-input': function(event, template) {
+    'submit .markov-gen-input': (event, template) => {
         event.preventDefault();
 
         var sourceText = template.$('#markov-gen-input').val();
         Session.set('genSourceText', sourceText);
         var len = template.$('#markov-gen-length-input').val();
-        Session.set('genSourceTextLen', len || 100);
+        Session.set('genSourceTextLen', parseInt(len, 10));
     },
 });
 
-Template.test.onDestroyed(function() {
+Template.test.onDestroyed(() => {
     Session.set('user', undefined);
     Session.set('sourceText', undefined);
     Session.set('markovUser', undefined);
