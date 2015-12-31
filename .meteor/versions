@@ -12,6 +12,7 @@ caching-compiler@1.0.0
 caching-html-compiler@1.0.2
 callback-hook@1.0.4
 check@1.1.0
+coffeescript@1.0.11
 ddp@1.2.2
 ddp-client@1.2.1
 ddp-common@1.2.2
@@ -54,6 +55,8 @@ npm-container@1.2.0
 npm-mongo@1.4.39_1
 observe-sequence@1.0.7
 ordered-dict@1.0.4
+practicalmeteor:chai@2.1.0_1
+practicalmeteor:loglevel@1.2.0_2
 promise@0.5.1
 random@1.0.5
 reactive-dict@1.1.3

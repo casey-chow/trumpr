@@ -19,19 +19,19 @@ MarkovTwitter.modelFromUser = function(user) {
 MarkovTwitter.presentableModelFromUser = function(user, rows) {
     if (!user) return;
     var source = createSourceText(TwitterAPI.getTweets(user, +1));
-    return MarkovModel.presentableModelFromText(source).slice(0, rows);
+    return MarkovModel.fromText(source).presentable().slice(0, rows);
 };
 
 // train based off an array of tweets
 MarkovTwitter.modelFromTweets = function(tweets) {
     var source = createSourceText(tweets);
-    return MarkovModel.modelFromText(source);
+    return MarkovModel.fromText(source);
 };
 
 // TODO: rewrite as iterator
 MarkovTwitter.generateMarkovTweets = function(user, number = 10) {
     if (!user) return [];
-    console.info('generating tweets for', user);
+    log.info('generating tweets for', user);
     console.time('source creation');
     var source = createSourceText(TwitterAPI.getTweets(user, +1));
     console.timeEnd('source creation');
@@ -40,7 +40,7 @@ MarkovTwitter.generateMarkovTweets = function(user, number = 10) {
     tweets = [];
     while (tweets.length <= number) {
         let seed       = createSeed(source);
-        let markovText = MarkovModel.generateText(model, seed);
+        let markovText = model.generate(seed);
         let nextTweet  = cleanGeneratedTweet(markovText);
         if (nextTweet.length > 15) tweets.push(nextTweet);
     }

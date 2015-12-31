@@ -1,77 +1,109 @@
 ///////////////////////////////////////////////////////////
-// EXTERNAL API: CONFIGURATION                           //
+// CONFIGURATION                                         //
 ///////////////////////////////////////////////////////////
 
-MarkovModel = {};
-
-const separator = '`';
 const order = 9;
 
-///////////////////////////////////////////////////////////
-// EXTERNAL API: TRAINING                                //
-///////////////////////////////////////////////////////////
-
-MarkovModel.modelFromText = function(sourceText) {
-    sourceText = sanitizeSourceText(sourceText);
-    var sourceTextHash = MURMUR_HASH.murmur_2(sourceText);
-
-    var modelDocument = markovModels.findOne({ sourceTextHash });
-    if (modelDocument && modelDocument.model) return modelDocument.model;
-
-    var model = trainMarkovModel(sourceText);
-    markovModels.insert({
-        model,
-        sourceText,
-        sourceTextHash,
-        createdAt: new Date()
-    }, forceAsync);
-    return model;
+// these mappings are necessary to serialize the markov chains
+// MongoDB does not allow periods (.) or dollar signs ($) in
+// their field names
+const sanitationMap = {
+    '.': '\u13AF',
+    '$': '\u13B0'
 };
+///////////////////////////////////////////////////////////
 
-MarkovModel.presentableModelFromText = function(source) {
-    if (!source) return [];
+MarkovModel = class {
 
-    var model = MarkovModel.modelFromText(source);
+    ///////////////////////////////////////////////////////
+    // CONSTRUCTION + TRAINING                           //
+    ///////////////////////////////////////////////////////
 
-    var out = [];
-    _.each(model, function(dist, history) {
-        var _dist = [];
-        _.each(dist, (freq, chr) => {
-            _dist.push({ freq: freq, letter: chr });
+    constructor(sourceText) {
+        this.sourceText = sanitizeSourceText(sourceText);
+        this.sourceTextHash = MURMUR_HASH.murmur_2(this.sourceText);
+
+        this.modelDocument = markovModels.findOne(_.pick(this, 'sourceTextHash'));
+
+        if (!this.modelDocument) {
+            this.modelDocument = {
+                model:          trainMarkovModel(this.sourceText),
+                sourceText:     this.sourceText,
+                sourceTextHash: this.sourceTextHash,
+                createdAt:      new Date()
+            };
+            markovModels.insert(this.modelDocument, forceAsync);
+        }
+
+        this.model = this.modelDocument.model;
+    }
+
+    static fromText(sourceText) {
+        return new MarkovModel(sourceText);
+    }
+
+    ///////////////////////////////////////////////////////
+    // GENERATION                                        //
+    ///////////////////////////////////////////////////////
+
+    generate(seed, length) {
+        length = length || 200;
+        seed = seed || '';
+        log.info('generating text length ' + length);
+
+        var out = seed;
+        _.times(length, () => out += this.generateLetter(out));
+
+        return desanitizeSourceText(out);
+    }
+
+    generateLetter(seed) {
+        var kgram = seed.slice(-order);
+        if (!_.has(this.model, kgram)) return ' ';
+
+        var dist = this.model[kgram];
+        var x = Math.random();
+        return _.findKey(normalizeDist(dist), val => {
+            x -= val;
+            return x <= 0;
         });
+    }
 
-        out.push({
-            history: history.replace(/\s/g, '¤'),
-            frequencies: _dist
+    ///////////////////////////////////////////////////////
+    // PRESENTATION                                      //
+    ///////////////////////////////////////////////////////
+
+    presentable() {
+        if (!this.model) return [];
+        return reduceObject(model, (dist, history) => {
+            return {
+                history: history.replace(/\s/g, '¤'),
+                frequencies: reduceObject(dist, 
+                    (freq, letter) => { freq, letter }
+                )
+            };
         });
-    });
-    return out;
+    }
+
+    testGenerate(length) {
+        return this.generate(randomSeed(this.sourceText), length)
+    }
 };
 
 ///////////////////////////////////////////////////////////
-// EXTERNAL API: GENERATION                              //
+// METEOR METHODS                                        //
 ///////////////////////////////////////////////////////////
-
-MarkovModel.generateTextFromSource = function(source, length) {
-    if (!source) return;
-
-    var model = MarkovModel.modelFromText(source);
-    var seed = randomSeed(source);
-    return MarkovModel.generateText(model, seed, length);
-};
-
-MarkovModel.generateText = function(model, seed, length) {
-    var out = seed;
-    length = length || 200;
-
-    _.times(length, function() {
-        out += generateLetter(model, out);
-    });
-
-    return desanitizeSourceText(out);
-};
         
-Meteor.methods(MarkovModel);
+Meteor.methods({
+    presentableModelFromText(sourceText) {
+        return MarkovModel.fromText(sourceText).presentable()
+    },
+
+    generateTextFromSource(sourceText, length) {
+        var seed = randomSeed(sourceText);
+        return MarkovModel.fromText(sourceText).generate(seed, length);
+    }
+});
 
 ///////////////////////////////////////////////////////////
 // TRAINING HELPERS                                      //
@@ -80,6 +112,7 @@ Meteor.methods(MarkovModel);
 // given a text source, train a model
 // TODO: enable expanding off a given model
 var trainMarkovModel = function(source) {
+    log.info('training markov model from text length ' + source.length);
     var model = {};
 
     // append first `order` chars to allow circularity
@@ -103,52 +136,43 @@ var trainMarkovModel = function(source) {
 // GENERATION HELPERS                                    //
 ///////////////////////////////////////////////////////////
 
-var generateLetter = function(model, history) {
-    var kgram = history.slice(-order);
-    if (!_.has(model, kgram)) return ' ';
-
-    var dist = model[kgram];
-    var x = Math.random();
-    return _.findKey(normalizeDist(dist), val => {
-        x -= val;
-        return x <= 0;
-    });
-};
-
 // normalize the frequency table
-var normalizeDist = function(dist) {
+function normalizeDist(dist) {
     var sum = _.reduce(_.values(dist), _.add);
     return _.mapValues(dist, freq => freq / sum);
-};
+}
 
-var randomSeed = function(source) {
+function randomSeed(source) {
     var start = Math.floor(Math.random() * source.length);
     return source.substr(start, order);
-};
+}
 
 ///////////////////////////////////////////////////////////
 // SERIALIAZATION HELPERS                                //
 ///////////////////////////////////////////////////////////
 
-// these methods are necessary to serialize the markov chains
-// MongoDB does not allow periods (.) or dollar signs ($) in
-// their field names
-
-var sanitationMap = {
-    '.': '\u13AF',
-    '$': '\u13B0'
-};
-
-var sanitizeSourceText = function(str) {
+function sanitizeSourceText(str) {
     _.each(sanitationMap, (replacement, source) => {
         str = str.replace(new RegExp('\\' + source, 'g'), replacement); 
     });
     return str;
-};
+}
 
-var desanitizeSourceText = function(str) {
+function desanitizeSourceText(str) {
     _.each(sanitationMap, (replacement, source) => {
        str = str.replace(new RegExp(replacement, 'g'), source); 
     });
     return str;
-};
+}
+
+
+///////////////////////////////////////////////////////////
+// GENERAL HELPERS                                       //
+///////////////////////////////////////////////////////////
+
+// a reduce function for helpers, of sorts
+function reduceObject(obj, cb) {
+    var out = [];
+    _.each(obj, (val, key) =>  out.push(cb(val, key)));
+    return out;
+}

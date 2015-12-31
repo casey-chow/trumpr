@@ -33,6 +33,7 @@ TwitterAPI.getTweets = function(user, direction, limit) {
 };
 
 TwitterAPI.getUserData = function(user) {
+    log.info('getting user data for '+user);
     if (!user) return;
 
     var data = twitterUsers.findOne({ screen_name: user });
@@ -52,6 +53,7 @@ TwitterAPI.getUserData = function(user) {
 
 // add any new tweets to the database for a given user
 TwitterAPI.refreshTweets = function(user) {
+    log.info('refreshing tweets for '+user);
     var newTweets = pullNewTweets(user, youngestTweetId(user));
     var oldTweets = pullOldTweets(user, oldestTweetId(user));
 
