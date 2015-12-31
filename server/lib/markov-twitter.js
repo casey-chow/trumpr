@@ -12,44 +12,40 @@ const order = 9;
 MarkovTwitter = {};
 
 // train based off a twitter username
-MarkovTwitter.trainFromUser = function(user) {
-    return MarkovTwitter.trainFromTweets(TwitterAPI.getTweets(user, +1));
-};
-
-// train based off an array of tweets
-MarkovTwitter.trainFromTweets = function(tweets) {
-    var source = createSourceText(tweets);
-    return MarkovModel.modelFromText(source).model;
-};
-
-// TODO: rewrite as iterator
-MarkovTwitter.generateMarkovTweets = function(user, number = 10) {
-    if (!user) return [];
-    console.info('generating tweets for', user);
-    console.time('tweet-gen');
-    console.time('tweet-gen-init');
-    var source = createSourceText(TwitterAPI.getTweets(user, +1));
-    var model = MarkovTwitter.trainFromUser(user);
-    console.timeEnd('tweet-gen-init');
-
-    tweets = [];
-    while (tweets.length <= number) {
-        console.time('tweet-gen-' + user);
-        let seed       = createSeed(source);
-        let markovText = MarkovModel.generateText(model, seed);
-        let nextTweet  = cleanGeneratedTweet(markovText);
-        if (nextTweet.length > 15) tweets.push(nextTweet);
-        console.timeEnd('tweet-gen-' + user);
-    }
-    console.timeEnd('tweet-gen');
-
-    return tweets;
+MarkovTwitter.modelFromUser = function(user) {
+    return MarkovTwitter.modelFromTweets(TwitterAPI.getTweets(user, +1));
 };
 
 MarkovTwitter.presentableModelFromUser = function(user, rows) {
     if (!user) return;
     var source = createSourceText(TwitterAPI.getTweets(user, +1));
     return MarkovModel.presentableModelFromText(source).slice(0, rows);
+};
+
+// train based off an array of tweets
+MarkovTwitter.modelFromTweets = function(tweets) {
+    var source = createSourceText(tweets);
+    return MarkovModel.modelFromText(source);
+};
+
+// TODO: rewrite as iterator
+MarkovTwitter.generateMarkovTweets = function(user, number = 10) {
+    if (!user) return [];
+    console.info('generating tweets for', user);
+    console.time('source creation');
+    var source = createSourceText(TwitterAPI.getTweets(user, +1));
+    console.timeEnd('source creation');
+    var model = MarkovTwitter.modelFromUser(user);
+
+    tweets = [];
+    while (tweets.length <= number) {
+        let seed       = createSeed(source);
+        let markovText = MarkovModel.generateText(model, seed);
+        let nextTweet  = cleanGeneratedTweet(markovText);
+        if (nextTweet.length > 15) tweets.push(nextTweet);
+    }
+
+    return tweets;
 };
 
 Meteor.methods(MarkovTwitter);
@@ -67,10 +63,11 @@ var createSourceText = function(tweets) {
         return tweet
         .replace('&amp;', '&')
         .replace('.@', '@')
-        .replace(/https?:\/\/t.co\/\w+/, '')
-        .replace(/[\s]+/, ' ');
+        .replace(/https?:\/\/t.co\/\w+/g, '')
+        .replace(/[\s]+/g, ' ');
     })
-    .join(separator);
+    .join(separator)
+    .replace(/`+/g, '`');
 };
 
 // selects a suitable seed for the tweet to start with

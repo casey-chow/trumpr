@@ -11,24 +11,27 @@ const order = 9;
 // EXTERNAL API: TRAINING                                //
 ///////////////////////////////////////////////////////////
 
-MarkovModel.modelFromText = function(source) {
-    source = sanitizeSourceText(source);
-    var model = markovModels.findOne({ sourceText: source });
-    if (model) return model;
+MarkovModel.modelFromText = function(sourceText) {
+    sourceText = sanitizeSourceText(sourceText);
+    var sourceTextHash = MURMUR_HASH.murmur_2(sourceText);
 
-    model = trainMarkovModel(source);
+    var modelDocument = markovModels.findOne({ sourceTextHash });
+    if (modelDocument && modelDocument.model) return modelDocument.model;
+
+    var model = trainMarkovModel(sourceText);
     markovModels.insert({
-        model: model,
-        sourceText: source,
+        model,
+        sourceText,
+        sourceTextHash,
         createdAt: new Date()
-    });
+    }, forceAsync);
     return model;
 };
 
 MarkovModel.presentableModelFromText = function(source) {
     if (!source) return [];
 
-    var model = MarkovModel.modelFromText(source).model;
+    var model = MarkovModel.modelFromText(source);
 
     var out = [];
     _.each(model, function(dist, history) {

@@ -34,13 +34,9 @@ TwitterAPI.getTweets = function(user, direction, limit) {
 
 TwitterAPI.getUserData = function(user) {
     if (!user) return;
-    console.time('getUserData');
 
     var data = twitterUsers.findOne({ screen_name: user });
-    if (data) {
-        console.timeEnd('getUserData');
-        return data;
-    }
+    if (data) return data;
 
     try {
         data = tGet('users/show', { screen_name: user });
@@ -49,9 +45,8 @@ TwitterAPI.getUserData = function(user) {
         return {};
     }
 
-    data = _(data).pick('name', 'screen_name', 'profile_image_url');
+    data = _.pick(data, 'name', 'screen_name', 'profile_image_url');
     twitterUsers.insert(data);
-    console.timeEnd('getUserData')
     return data;
 };
 

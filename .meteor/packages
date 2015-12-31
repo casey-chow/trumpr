@@ -27,3 +27,4 @@ matb33:collection-hooks
 simple:reactive-method
 underscore
 stevezhu:lodash
+jandres:murmur
