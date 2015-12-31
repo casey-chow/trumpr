@@ -9,43 +9,44 @@ const order = 9;
 // EXTERNAL API                                          //
 ///////////////////////////////////////////////////////////
 
-MarkovTwitter = class {
+MarkovTwitter = class MarkovTwitter {
 
     ///////////////////////////////////////////////////////
     // CONSTRUCTION                                      //
     ///////////////////////////////////////////////////////
 
-    constructor (tweets, user) {
-        this.sourceTweets   = createSourceText(tweets);
-        this.sourceUser     = user;
-        this.markovModel    = MarkovModel;
-    }
-
-    static fromTweets(tweets) {
-        return new MarkovTwitter(tweets);
+    constructor (user) {
+        log.info('creating MarkovTwitter for @'+user);
+        console.time('instantiate MarkovTwitter');
+        this.user = TwitterAPI.forUser(user);
+        this.model = MarkovModel.fromText(this.source);
+        console.timeEnd('instantiate MarkovTwitter');
     }
 
     static fromUser(user) {
-        var tweets = TwitterAPI.forUser(user).tweets(user, +1);
-        return new MarkovTwitter(tweets, user);
+        return new MarkovTwitter(user);
     }
 
     presentable(rows) {
-        return this.markovModel.presentable(rows);
+        return this.model.presentable(rows);
     }
 
     ///////////////////////////////////////////////////////
     // GENERATION                                        //
     ///////////////////////////////////////////////////////
 
+    get source() {
+        return createSourceText(this.user.tweets(+1)) || '';
+    }
+
     generate(number = 10) {
-        log.info('generating tweets for', this.sourceUser);
-        if (!this.sourceUser) return [];
+        if (!this.user) return [];
+        log.info('generating tweets for @'+this.user);
 
         var tweets = [];
         while (tweets.length <= number) {
-            let seed       = createSeed(source);
-            let markovText = this.model.generate(seed);
+            let seed       = createSeed(this.source);
+            let markovText = this.model.generate(200, seed);
             let nextTweet  = cleanGeneratedTweet(markovText);
             if (nextTweet.length > 15) tweets.push(nextTweet);
         }

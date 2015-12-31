@@ -11,45 +11,66 @@ const sanitationMap = {
     '.': '\u13AF',
     '$': '\u13B0'
 };
+
 ///////////////////////////////////////////////////////////
 
-MarkovModel = class {
+MarkovModel = class MarkovModel {
 
     ///////////////////////////////////////////////////////
     // CONSTRUCTION + TRAINING                           //
     ///////////////////////////////////////////////////////
 
     constructor(sourceText) {
-        this.sourceText = sanitizeSourceText(sourceText);
-        this.sourceTextHash = MURMUR_HASH.murmur_2(this.sourceText);
-
-        this.modelDocument = markovModels.findOne(_.pick(this, 'sourceTextHash'));
-
-        if (!this.modelDocument) {
-            this.modelDocument = {
-                model:          trainMarkovModel(this.sourceText),
-                sourceText:     this.sourceText,
-                sourceTextHash: this.sourceTextHash,
-                createdAt:      new Date()
-            };
-            markovModels.insert(this.modelDocument, forceAsync);
-        }
-
-        this.model = this.modelDocument.model;
+        this.train(sourceText);
     }
 
     static fromText(sourceText) {
         return new MarkovModel(sourceText);
     }
 
+    // trains (or retrains) a Markov Model based on new source text available
+    // modifies the entire object to reflect the new summarized text
+    train(newSource) {
+        var source = '' + this.source + sanitizeSourceText(newSource);
+        var hash = MURMUR_HASH.murmur_2(source);
+        var oldModel = this.model;
+        log.info('training model, length '+source.length+', hash '+hash);
+
+        this.modelDocument = markovModels.findOne(_.pick(this, 'sourceTextHash'));
+        if (!this.modelDocument) {
+            this.modelDocument = {
+                model:          trainMarkovModel(newSource, oldModel),
+                sourceText:     source,
+                sourceTextHash: hash,
+                createdAt:      new Date()
+            };
+            console.time('insert document');
+            markovModels.insert(this.modelDocument, forceAsync);
+            console.timeEnd('insert document');
+        }
+    }
+
+    ///////////////////////////////////////////////////////
+    // GETTERS                                           //
+    ///////////////////////////////////////////////////////
+
+    get model()  { 
+        return this.modelDocument && this.modelDocument.model;
+    }
+    get source() { 
+        return this.modelDocument && this.modelDocument.sourceText;
+    }
+    get hash()   { 
+        return this.modelDocument && this.modelDocument.sourceTextHash;; 
+    }
+
     ///////////////////////////////////////////////////////
     // GENERATION                                        //
     ///////////////////////////////////////////////////////
 
-    generate(seed, length) {
+    generate(length, seed) {
         length = length || 200;
-        seed = seed || '';
-        log.info('generating text length ' + length);
+        seed = seed || randomSeed(this.source);
 
         var out = seed;
         _.times(length, () => out += this.generateLetter(out));
@@ -75,18 +96,14 @@ MarkovModel = class {
 
     presentable(rows) {
         if (!this.model) return [];
-        return reduceObject(model, (dist, history) => {
-            return {
+        return reduceObject(this.model, (dist, history) => {
+            return { 
                 history: history.replace(/\s/g, '¤'),
-                frequencies: reduceObject(dist, 
-                    (freq, letter) => { freq, letter }
-                )
+                frequencies: reduceObject(dist, (freq, letter) => { 
+                    return { freq, letter }; 
+                })
             };
         }).slice(0, rows);
-    }
-
-    testGenerate(length) {
-        return this.generate(randomSeed(this.sourceText), length)
     }
 };
 
@@ -96,12 +113,11 @@ MarkovModel = class {
         
 Meteor.methods({
     presentableModelFromText(sourceText) {
-        return MarkovModel.fromText(sourceText).presentable()
+        return MarkovModel.fromText(sourceText).presentable();
     },
 
     generateTextFromSource(sourceText, length) {
-        var seed = randomSeed(sourceText);
-        return MarkovModel.fromText(sourceText).generate(seed, length);
+        return MarkovModel.fromText(sourceText).generate(length);
     }
 });
 
@@ -110,11 +126,14 @@ Meteor.methods({
 ///////////////////////////////////////////////////////////
 
 // given a text source, train a model
+// WARNING: modifies the original model, as well as returning
+// the neew one if a model is passed in
 // TODO: enable expanding off a given model
-var trainMarkovModel = function(source) {
+function trainMarkovModel(source, model) {
     log.info('training markov model from text length ' + source.length);
-    var model = {};
+    model = model || {};
 
+    source = sanitizeSourceText(source);
     // append first `order` chars to allow circularity
     source += source.substr(0, order);
 

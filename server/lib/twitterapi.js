@@ -16,62 +16,80 @@ const refreshThrottle = 15 * 60 * 1000; // 15 minutes, in milliseconds
 ///////////////////////////////////////////////////////////
 
 TwitterAPI = class {
+
     constructor(user) {
-        this.user = user;
+        this.profile = twitterUsers.findOne({ screen_name: user });
+
+        if (!this.profile){
+            try {
+                this.profile = tGet('users/show', { screen_name: user });
+                this.profile = _.pick(this.profile, 
+                    ['name', 'screen_name', 'profile_image_url']
+                );
+                twitterUsers.insert(this.profile, forceAsync);
+            } catch (err) { log.error(err); return {}; }
+        }
     }
 
     static forUser(user) {
         return new TwitterAPI(user);
     }
 
-    // retrieves a user's timeline (or part of it), in the
-    // direction specified, or in reverse chronological
-    // by default
+    // retrieves a user's timeline (or part of it), in the direction specified, 
+    // or in reverse chronological by default
     tweets(direction = -1, limit) {
         if (!this.user) return [];
 
-        return realTweets.find({
-            screen_name: this.user
-        }, {
+        this.refresh();
+        return realTweets.find({ screen_name: this.user }, {
             sort: { id: direction },
             limit: parseInt(limit, 10)
         }).fetch();
     }
 
-    // refreshes if the user has not been refreshed for `refreshThrottle` time
+    ///////////////////////////////////////////////////////
+    // TWEET REFRESHING                                  //
+    ///////////////////////////////////////////////////////
+
+    // refresh tweets, throttled to only 1 refresh per user per 15 minutes 
+    // to ensure we don't hit the API call limit
     refresh() {
-        if (!throttlePassed(profile)) return;
-        log.info('refreshing tweets for '+this.user);
+        if (!this.throttleOpen()) return;
+        log.info('refreshing tweets for @'+this.user);
 
         var newTweets = pullNewTweets(this.user, youngestTweetId(this.user));
         var oldTweets = pullOldTweets(this.user, oldestTweetId(this.user));
 
         var allTweets = newTweets.concat(oldTweets);
-        allTweets.forEach(tweet => { realTweets.upsert({ id: tweet.id }, tweet); });
-        resetThrottle(profile);
+        allTweets.forEach(tweet => { 
+            realTweets.upsert({ id: tweet.id }, tweet, forceAsync); 
+        });
+        this.resetThrottle(this.profile);
     }
 
-    get profile() {
-        log.info('getting user data for '+user);
-
-        if (!this.user) return {};
-        if (!this._profile)
-            this._profile = twitterUsers.findOne({ screen_name: user });
-
-        if (!this._profile){
-            try {
-                this._profile = tGet('users/show', { screen_name: user });
-                this._profile = _.pick(this._profile, 
-                    'name', 
-                    'screen_name', 
-                    'profile_image_url'
-                );
-                twitterUsers.insert(this._profile);
-            } catch (err) { log.error(err); return {}; }
-        }
-
-        return this._profile;
+    // returns true if enough time has passed since last refresh to 
+    // warrant refreshing
+    throttleOpen() {
+        var lastRefreshed = this.profile && this.profile.lastRefreshed;
+        var timeDifference = Date.now() - lastRefreshed || Infinity;
+        return timeDifference > refreshThrottle;
     }
+
+    resetThrottle() {
+        this.profile.lastRefreshed = Date.now();
+        twitterUsers.upsert({
+            screen_name: this.user
+        }, { $set: { lastRefreshed: this.profile.lastRefreshed }});
+    }
+
+    ///////////////////////////////////////////////////////
+    // GETTERS                                           //
+    ///////////////////////////////////////////////////////
+
+    get user() {
+        return this.profile && this.profile.screen_name;
+    }
+
 }
 
 ///////////////////////////////////////////////////////////
@@ -86,29 +104,6 @@ Meteor.methods({
         return TwitterAPI.forUser(user).profile;
     }
 });
-
-///////////////////////////////////////////////////////////
-// TWEET REFRESHING                                      //
-///////////////////////////////////////////////////////////
-
-// refresh tweets upon retrieval to ensure fresh tweets
-// throttled to only 1 refresh per user per 15 minutes to ensure we 
-// don't hit the API call limit
-
-// returns true if enough time has passed since last refresh to 
-// warrant refreshing
-function throttlePassed(profile) {
-    var lastRefreshed = profile && profile.lastRefreshed;
-    var timeDifference = Date.now() - lastRefreshed;
-    return timeDifference > refreshThrottle;
-}
-
-function resetThrottle(profile) {
-    profile.lastRefreshed = Date.now();
-    twitterUsers.upsert({
-        screen_name: profile.screen_name
-    }, { $set: { lastRefreshed: Date.now() }});
-}
 
 ///////////////////////////////////////////////////////////
 // TWEET RETRIEVAL                                       //
@@ -126,13 +121,9 @@ function pullTweets(user, options) {
 
     try {
         var tweets = tGet('statuses/user_timeline', options);
-    } catch (err) {
-        console.error(err);
-        return [];
-    }
+    } catch (err) { log.error(err); return []; }
 
-    return _(tweets)
-    .forEach(tweet => { tweet.screen_name = user })
+    return _.each(tweets, tweet => { tweet.screen_name = user })
     .map(tweet => _.pick(tweet, ['id', 'created_at', 'text', 'screen_name']));
 }
 
