@@ -18,7 +18,7 @@ MarkovTwitter = class MarkovTwitter {
     constructor (user) {
         log.info('creating MarkovTwitter for @'+user);
         console.time('instantiate MarkovTwitter');
-        this.user = TwitterAPI.forUser(user);
+        this.user = Twitter.forUser(user);
         this.model = MarkovModel.fromText(this.source);
         console.timeEnd('instantiate MarkovTwitter');
     }
