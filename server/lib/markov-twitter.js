@@ -54,7 +54,7 @@ MarkovTwitter = class MarkovTwitter {
         }).fetch();
     }
 
-    generate(number = 10) {
+    generate(number = 10, delay = 0) {
         if (!this.twitter) return [];
         log.info('generating tweets for @'+this.screenName);
 
@@ -73,7 +73,10 @@ MarkovTwitter = class MarkovTwitter {
             screen_name: this.screenName,
             text: tweet 
         }});
-        tweets.forEach(tweet => fakeTweets.insert(tweet, forceAsync));
+        tweets.forEach(tweet => {
+            if (delay) Meteor._sleepForMs(delay);
+            Meteor.defer(() => fakeTweets.insert(tweet));
+        });
         return tweets;
     };
 };

@@ -1,8 +1,18 @@
 <template name="tweets">
     <section class="tweets {{class}}">
-        {{#with user 'realDonaldTrump'}}
+        {{#with currentTwitterUser}}
+        <form class="tweet-gen-input">
+            <div class="form-group tweet-name-group">
+                <label class="sr-only" for="screen-name">Screen Name</label>
+                <div class="input-group">
+                    <div class="input-group-addon">@</div>
+                    <input type="text" class="form-control" id="tweet-gen-screen-name" value="{{screen_name}}">
+                </div>
+            </div>
+            <input type="submit" class="sr-only" />
+        </form>
         <header class="page-header">
-            <h1>Tweets <small>@realDonaldTrump</small></h1>
+            <h1>Tweets <small>@{{screen_name}}</small></h1>
         </header>
         <ul class="list-group">
             {{#each tweets}}
@@ -13,7 +23,7 @@
                     </div>
                     <div class="tweet-text">
                         <span class="text-head">
-                            <strong>{{name}}</strong>
+                            <strong>{{../name}}</strong>
                             <small class="meta">@{{screen_name}} · {{created_at}} </small>
                         </span>
                         {{text}}

@@ -45,7 +45,7 @@ MarkovModel = class MarkovModel {
                 createdAt:      new Date()
             };
             console.time('insert document');
-            markovModels.insert(this.modelDocument, forceAsync);
+            Meteor.defer(() => markovModels.insert(this.modelDocument));
             console.timeEnd('insert document');
         }
     }

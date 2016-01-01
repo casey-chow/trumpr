@@ -26,7 +26,7 @@ Twitter = class {
                 this.profile = _.pick(this.profile, 
                     ['name', 'screen_name', 'profile_image_url']
                 );
-                twitterUsers.insert(this.profile, forceAsync);
+                Meteor.defer(() => twitterUsers.insert(this.profile));
             } catch (err) { log.error(err); return {}; }
         }
     }
@@ -74,7 +74,7 @@ Twitter = class {
         var allTweets = newTweets.concat(oldTweets);
         allTweets.forEach(tweet => { 
             tweet.created_at = new Date(tweet.created_at);
-            realTweets.upsert({ id: tweet.id }, tweet, forceAsync); 
+            Meteor.defer(() => realTweets.upsert({ id: tweet.id }, tweet)); 
         });
         console.timeEnd('tweet refresh');
         this.resetThrottle(this.profile);
