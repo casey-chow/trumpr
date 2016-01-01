@@ -15,10 +15,10 @@ MarkovTwitter = class MarkovTwitter {
     // CONSTRUCTION                                      //
     ///////////////////////////////////////////////////////
 
-    constructor (user) {
+    constructor(user) {
         log.info('creating MarkovTwitter for @'+user);
         console.time('instantiate MarkovTwitter');
-        this.user = Twitter.forUser(user);
+        this.twitter = Twitter.forUser(user);
         this.model = MarkovModel.fromText(this.source);
         console.timeEnd('instantiate MarkovTwitter');
     }
@@ -32,25 +32,42 @@ MarkovTwitter = class MarkovTwitter {
     }
 
     ///////////////////////////////////////////////////////
-    // GENERATION                                        //
+    // GETTERS                                           //
     ///////////////////////////////////////////////////////
 
     get source() {
-        return createSourceText(this.user.tweets(+1)) || '';
+        return createSourceText(this.twitter.tweets(+1)) || '';
     }
 
+    get screenName() {
+        return this.twitter && this.twitter.screenName;
+    }
+
+    ///////////////////////////////////////////////////////
+    // GENERATION                                        //
+    ///////////////////////////////////////////////////////
+
     generate(number = 10) {
-        if (!this.user) return [];
-        log.info('generating tweets for @'+this.user);
+        if (!this.twitter) return [];
+        log.info('generating tweets for @'+this.screenName);
 
         var tweets = [];
-        while (tweets.length <= number) {
+        var count = 0;
+        while (tweets.length <= number && count <= number*2) {
             let seed       = createSeed(this.source);
             let markovText = this.model.generate(200, seed);
             let nextTweet  = cleanGeneratedTweet(markovText);
             if (nextTweet.length > 15) tweets.push(nextTweet);
         }
 
+        tweets.forEach(tweet => {
+            fakeTweets.insert({
+                id: MURMUR_HASH.murmur_2(tweet),
+                created_at: new Date(),
+                screen_name: this.screenName,
+                text: tweet
+            }, forceAsync);
+        })
         return tweets;
     };
 };
