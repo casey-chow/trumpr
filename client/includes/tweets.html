@@ -5,18 +5,18 @@
             <h1>Tweets <small>@realDonaldTrump</small></h1>
         </header>
         <ul class="list-group">
-            {{#each tweet in tweets}}
+            {{#each tweets}}
             <li class="list-group-item clearfix">
                 <div>
                     <div class="profile-picture-container">
-                        <img src={{profile_image_url}} class="profile-picture">
+                        <img src={{../profile_image_url}} class="profile-picture">
                     </div>
                     <div class="tweet-text">
                         <span class="text-head">
                             <strong>{{name}}</strong>
-                            <small class="meta">@{{screen_name}} · {{date}} </small>
+                            <small class="meta">@{{screen_name}} · {{created_at}} </small>
                         </span>
-                        {{tweet}}
+                        {{text}}
                     </div>
                 </div>
             </li>

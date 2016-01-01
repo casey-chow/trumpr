@@ -47,6 +47,13 @@ MarkovTwitter = class MarkovTwitter {
     // GENERATION                                        //
     ///////////////////////////////////////////////////////
 
+    retrieve(number = 10, direction = -1, oldest) {
+        return fakeTweets.find({ screen_name: this.screenName }, {
+            sort: { created_at: direction },
+            limit: parseInt(limit, 10)
+        }).fetch();
+    }
+
     generate(number = 10) {
         if (!this.twitter) return [];
         log.info('generating tweets for @'+this.screenName);
@@ -60,14 +67,13 @@ MarkovTwitter = class MarkovTwitter {
             if (nextTweet.length > 15) tweets.push(nextTweet);
         }
 
-        tweets.forEach(tweet => {
-            fakeTweets.insert({
-                id: MURMUR_HASH.murmur_2(tweet),
-                created_at: new Date(),
-                screen_name: this.screenName,
-                text: tweet
-            }, forceAsync);
-        })
+        tweets = tweets.map(tweet => { return {
+            id: MURMUR_HASH.murmur_2(tweet),
+            created_at: new Date(),
+            screen_name: this.screenName,
+            text: tweet 
+        }});
+        tweets.forEach(tweet => fakeTweets.insert(tweet, forceAsync));
         return tweets;
     };
 };

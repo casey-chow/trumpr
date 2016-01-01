@@ -67,13 +67,16 @@ Twitter = class {
         if (!this.throttleOpen()) return;
         log.info('refreshing tweets for @'+this.screenName);
 
+        console.time('tweet refresh');
         var newTweets = pullNewTweets(this.screenName);
         var oldTweets = pullOldTweets(this.screenName);
 
         var allTweets = newTweets.concat(oldTweets);
         allTweets.forEach(tweet => { 
+            tweet.created_at = new Date(tweet.created_at);
             realTweets.upsert({ id: tweet.id }, tweet, forceAsync); 
         });
+        console.timeEnd('tweet refresh');
         this.resetThrottle(this.profile);
     }
 
