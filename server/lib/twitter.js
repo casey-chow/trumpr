@@ -28,7 +28,7 @@ Twitter = class {
                     ['name', 'screen_name', 'profile_image_url']
                 );
                 Meteor.defer(() => twitterUsers.insert(this.profile));
-            } catch (err) { log.trace(err); return {}; }
+            } catch (err) { log.trace(err); return; }
         }
     }
 

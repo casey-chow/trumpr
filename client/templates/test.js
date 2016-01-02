@@ -2,19 +2,23 @@
 // TWEET RETRIEVAL                                       //
 ///////////////////////////////////////////////////////////
 
-{
+Template.test.onCreated(() => {
+    var user = new ReactiveVar();
+    var length = new ReactiveVar();
+    var tweets = new ReactiveVar();
+
     Template.test.helpers({
-        user: () => Session.get('user'),
+        user: () => user.get(),
         userProfile() {
-            if (Session.get('user')) {
-                return ReactiveMethod.call('getUserData', Session.get('user'));
+            if (user.get()) {
+                return ReactiveMethod.call('getUserData', user.get());
             }
         },
         tweets() {
-            if (Session.get('user')) {
-                log.debug('calling getTweets with user', Session.get('user'));
-                return ReactiveMethod.call('getTweets', Session.get('user'), -1, 
-                                            Session.get('tweetRetrievalLength'));
+            if (user.get()) {
+                log.debug('calling getTweets with user', user.get());
+                return ReactiveMethod.call('getTweets', user.get(), -1, 
+                                            length.get());
             }
         }
     });
@@ -23,27 +27,27 @@
         'submit .tweet-retrieval-input': (event, template) => {
             event.preventDefault();
 
-            var screenName = template.$('#tweet-retrieval-screen-name').val();
-            Session.set('user', screenName);
-            var len = template.$('#tweet-retrieval-length').val();
-            Session.set('tweetRetrievalLength', +len);
+            user.set(template.$('#tweet-retrieval-screen-name').val());
+            length.set(+template.$('#tweet-retrieval-length').val());
         }
     });
-}
+});
 
 ///////////////////////////////////////////////////////////
 // MARKOV MODEL DISPLAY                                  //
 ///////////////////////////////////////////////////////////
 
-{
+Template.test.onCreated(() => {
+    var text = new ReactiveVar();
+
     Template.test.helpers({
         markovModel() {
-            if (Session.get('sourceText')) {
-                return ReactiveMethod.call('presentableModelFromText', Session.get('sourceText'));
+            if (text.get()) {
+                return ReactiveMethod.call('presentableModelFromText', text.get());
             }
         },
         markovModelLength() {
-            if (Session.get('sourceText')) {
+            if (text.get()) {
                 return _.values(Template.test.__helpers.get('markovModel').call()).length;
             }
         }
@@ -53,24 +57,25 @@
         'submit .markov-model-input': (event, template) => {
             event.preventDefault();
 
-            var sourceText = template.$('#markov-input').val();
-            Session.set('sourceText', sourceText);
+            text.set(template.$('#markov-input').val());
         }
     });
-}
+});
 
 ///////////////////////////////////////////////////////////
 // TWITTER MARKOV MODEL DISPLAY                          //
 ///////////////////////////////////////////////////////////
 
-{
+Template.test.onCreated(() => {
+    var user = new ReactiveVar();
+    var length = new ReactiveVar();
+
     Template.test.helpers({
-        markovUser: () => Session.get('markovUser'),
+        markovUser: () => user.get(),
         userMarkovModel() {
-            if (Session.get('markovUser')) {
+            if (user.get()) {
                 return ReactiveMethod.call('presentableModelFromUser', 
-                                           Session.get('markovUser'), 
-                                           Session.get('markovUserLength'));
+                                           user.get(), length.get());
             }
         }
     });
@@ -79,25 +84,25 @@
         'submit .twitter-markov-input': (event, template) => {
             event.preventDefault();
 
-            var markovUser = template.$('#markov-screen-name').val();
-            Session.set('markovUser', markovUser);
-            var markovLength = template.$('#markov-length').val();
-            Session.set('markovUserLength', +markovLength);
+            user.set(template.$('#markov-screen-name').val());
+            length.set(+template.$('#markov-length').val());
         }
     });
-}
+});
 
 ///////////////////////////////////////////////////////////
 // MARKOV MODEL GENERATION                               //
 ///////////////////////////////////////////////////////////
 
-{
+Template.test.onCreated(() => {
+    var text = new ReactiveVar();
+    var length = new ReactiveVar();
+
     Template.test.helpers({
         markovModelGen() {
-            if (Session.get('genSourceText')) {
+            if (text.get()) {
                 return ReactiveMethod.call('generateTextFromSource', 
-                                           Session.get('genSourceText'),
-                                           Session.get('genSourceTextLen'));
+                                           text.get(), length.get());
             }
         }
     });
@@ -106,21 +111,8 @@
         'submit .markov-gen-input': (event, template) => {
             event.preventDefault();
 
-            var sourceText = template.$('#markov-gen-input').val();
-            Session.set('genSourceText', sourceText);
-            var len = template.$('#markov-gen-length-input').val();
-            Session.set('genSourceTextLen', +len);
+            text.set(template.$('#markov-gen-input').val());
+            length.get(+template.$('#markov-gen-length-input').val());
         }
     });
-}
-
-///////////////////////////////////////////////////////////
-// DE-INITIALIZATION                                     //
-///////////////////////////////////////////////////////////
-
-Template.test.onDestroyed(() => {
-    Session.set('user', undefined);
-    Session.set('sourceText', undefined);
-    Session.set('markovUser', undefined);
-    Session.set('genSourceText', undefined);
 });
