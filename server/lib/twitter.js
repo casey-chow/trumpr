@@ -18,6 +18,7 @@ const refreshThrottle = 15 * 60 * 1000; // 15 minutes, in milliseconds
 Twitter = class {
 
     constructor(user) {
+        check(user, String);
         this.profile = twitterUsers.findOne({ screen_name: user });
 
         if (!this.profile){
@@ -27,7 +28,7 @@ Twitter = class {
                     ['name', 'screen_name', 'profile_image_url']
                 );
                 Meteor.defer(() => twitterUsers.insert(this.profile));
-            } catch (err) { log.error(err); return {}; }
+            } catch (err) { log.trace(err); return {}; }
         }
     }
 
@@ -41,11 +42,15 @@ Twitter = class {
 
     // retrieves a user's timeline (or part of it), in the direction specified, 
     // or in reverse chronological by default
-    tweets(direction = -1, limit) {
+    tweets(direction, limit) {
+        limit = limit || undefined;
+        check(direction, Match.OneOf(-1, 1));
+        check(limit, Match.Optional(Match.Integer));
+
         this.refresh();
         return realTweets.find({ screen_name: this.screenName }, {
             sort: { id: direction },
-            limit: parseInt(limit, 10)
+            limit: limit
         }).fetch();
     }
 
@@ -103,6 +108,7 @@ Twitter = class {
 
 Meteor.methods({
     getTweets(user, direction, limit) {
+        log.info('getTweets called with', user)
         return Twitter.forUser(user).tweets(direction, limit);
     },
     getUserData(user) {
@@ -126,7 +132,7 @@ function pullTweets(user, options) {
 
     try {
         var tweets = tGet('statuses/user_timeline', options);
-    } catch (err) { log.error(err); return []; }
+    } catch (err) { log.trace(err); return []; }
 
     return _.each(tweets, tweet => { tweet.screen_name = user })
     .map(tweet => _.pick(tweet, ['id', 'created_at', 'text', 'screen_name']));

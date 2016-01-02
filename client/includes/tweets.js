@@ -1,6 +1,18 @@
 
 const delay = 10 * 1000;
 
+
+///////////////////////////////////////////////////////////
+// TWEET PULLING                                         //
+///////////////////////////////////////////////////////////
+
+Template.tweets.onRendered(() => {
+    Tracker.autorun(() => {
+        Meteor.subscribe('twitterUsers');
+        Meteor.subscribe('fakeTweets', Session.get('currentTwitterUser').screen_name, 20);
+    });
+});
+
 Template.tweets.helpers({
     tweets() {
         return fakeTweets.find({ screen_name: this.screen_name }, { 
@@ -18,7 +30,7 @@ Template.tweets.helpers({
     currentTwitterUser() { return Session.get('currentTwitterUser'); }
 });
 
-Meteor.startup(() => {
+Template.tweets.onRendered(() => {
     if (!Session.get('currentTwitterUser')) updateUserTo('realDonaldTrump');
 });
 
@@ -35,17 +47,13 @@ Template.tweets.events({
 
 function updateUserTo(screenName) {
     Meteor.call('getUserData', screenName, (error, newUser) => {
-        if (error) log.error(error);
+        if (error) log.trace(error);
         Session.set('currentTwitterUser', newUser);
         log.info('updated user to', screenName);
     });
-}
 
-// stub method, loads the user directly from MongoDB if it already
-// exists until the server gets back
-Meteor.methods({
-    getUserData(screenName) {
-        var newUser = twitterUsers.findOne({ screen_name: screenName });
-        Session.set('currentTwitterUser', newUser);
-    }
-});
+    // loads the user directly from MongoDB if it already
+    // exists until the server gets back
+    var newUser = twitterUsers.findOne({ screen_name: screenName });
+    Session.set('currentTwitterUser', newUser);
+}

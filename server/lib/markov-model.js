@@ -9,7 +9,8 @@ const order = 9;
 // their field names
 const sanitationMap = {
     '.': '\u13AF',
-    '$': '\u13B0'
+    '$': '\u13B0',
+    ' ': '\u13E4'
 };
 
 ///////////////////////////////////////////////////////////
@@ -31,22 +32,22 @@ MarkovModel = class MarkovModel {
     // trains (or retrains) a Markov Model based on new source text available
     // modifies the entire object to reflect the new summarized text
     train(newSource) {
-        var source = '' + this.source + sanitizeSourceText(newSource);
-        var hash = MURMUR_HASH.murmur_2(source);
-        var oldModel = this.model;
-        log.info('training model, length '+source.length+', hash '+hash);
+        check(newSource, String);
 
-        this.modelDocument = markovModels.findOne(_.pick(this, 'sourceTextHash'));
+        var text = (this.text || '') + sanitize(newSource);
+        var hash = MURMUR_HASH.murmur_2(text);
+        var oldModel = this.model;
+        log.info('training model, length '+text.length+', hash '+hash);
+
+        this.modelDocument = markovModels.findOne({ hash });
         if (!this.modelDocument) {
             this.modelDocument = {
-                model:          trainMarkovModel(newSource, oldModel),
-                sourceText:     source,
-                sourceTextHash: hash,
-                createdAt:      new Date()
+                model:     trainMarkovModel(newSource, oldModel),
+                text:      text,
+                hash:      hash,
+                createdAt: new Date()
             };
-            console.time('insert document');
             Meteor.defer(() => markovModels.insert(this.modelDocument));
-            console.timeEnd('insert document');
         }
     }
 
@@ -57,11 +58,13 @@ MarkovModel = class MarkovModel {
     get model()  { 
         return this.modelDocument && this.modelDocument.model;
     }
-    get source() { 
-        return this.modelDocument && this.modelDocument.sourceText;
+    
+    get text() { 
+        return this.modelDocument && this.modelDocument.text;
     }
+
     get hash()   { 
-        return this.modelDocument && this.modelDocument.sourceTextHash;; 
+        return this.modelDocument && this.modelDocument.hash;
     }
 
     ///////////////////////////////////////////////////////
@@ -70,15 +73,20 @@ MarkovModel = class MarkovModel {
 
     generate(length, seed) {
         length = length || 200;
-        seed = seed || randomSeed(this.source);
+        seed = seed || randomSeed(this.text);
+
+        check(length, Match.Integer);
+        check(seed,   String);
 
         var out = seed;
         _.times(length, () => out += this.generateLetter(out));
 
-        return desanitizeSourceText(out);
+        return desanitize(out);
     }
 
     generateLetter(seed) {
+        check(seed, String);
+
         var kgram = seed.slice(-order);
         if (!_.has(this.model, kgram)) return ' ';
 
@@ -95,10 +103,12 @@ MarkovModel = class MarkovModel {
     ///////////////////////////////////////////////////////
 
     presentable(rows) {
-        if (!this.model) return [];
+        rows = rows || undefined;
+        check(rows, Match.Optional(Match.Integer));
+
         return reduceObject(this.model, (dist, history) => {
             return { 
-                history: history.replace(/\s/g, '¤'),
+                history: history,
                 frequencies: reduceObject(dist, (freq, letter) => { 
                     return { freq, letter }; 
                 })
@@ -126,14 +136,12 @@ Meteor.methods({
 ///////////////////////////////////////////////////////////
 
 // given a text source, train a model
-// WARNING: modifies the original model, as well as returning
-// the neew one if a model is passed in
-// TODO: enable expanding off a given model
+// WARNING: modifies the original model, as well as returning the new one 
+// if a model is passed in
 function trainMarkovModel(source, model) {
-    log.info('training markov model from text length ' + source.length);
     model = model || {};
 
-    source = sanitizeSourceText(source);
+    source = sanitize(source);
     // append first `order` chars to allow circularity
     source += source.substr(0, order);
 
@@ -155,7 +163,7 @@ function trainMarkovModel(source, model) {
 // GENERATION HELPERS                                    //
 ///////////////////////////////////////////////////////////
 
-// normalize the frequency table
+// normalize the frequency table to add up to 1
 function normalizeDist(dist) {
     var sum = _.reduce(_.values(dist), _.add);
     return _.mapValues(dist, freq => freq / sum);
@@ -170,14 +178,16 @@ function randomSeed(source) {
 // SERIALIAZATION HELPERS                                //
 ///////////////////////////////////////////////////////////
 
-function sanitizeSourceText(str) {
+// sanitize input for insertion into the database
+function sanitize(str) {
     _.each(sanitationMap, (replacement, source) => {
         str = str.replace(new RegExp('\\' + source, 'g'), replacement); 
     });
     return str;
 }
 
-function desanitizeSourceText(str) {
+// desanitize so there's no weird characters in output text
+function desanitize(str) {
     _.each(sanitationMap, (replacement, source) => {
        str = str.replace(new RegExp(replacement, 'g'), source); 
     });
