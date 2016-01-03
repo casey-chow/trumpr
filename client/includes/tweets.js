@@ -1,59 +1,39 @@
+Template.tweets.onCreated(function() {
+    if (!Session.get('currentUser')) Session.set('currentUser', 'realDonaldTrump');
+    this.profile = new ReactiveVar();
 
-const delay = 10 * 1000;
+    // subscriptions
+    this.autorun(() => {
+        this.subscribe('fakeTweets', Session.get('currentUser'), 20);
+    });
 
+    // profile and tweet data
+    this.autorun(() => {
+        this.profile.set(twitterUsers.findOne({screen_name: Session.get('currentUser')}));
+        Meteor.call('getUserData', Session.get('currentUser'), (error, result) => {
+            if (error) log.trace(error);
+            this.profile.set(result);
+        });
 
-///////////////////////////////////////////////////////////
-// TWEET PULLING                                         //
-///////////////////////////////////////////////////////////
-
-Template.tweets.onCreated(() => {
-    Tracker.autorun(() => {
-        Meteor.subscribe('twitterUsers');
-        Meteor.subscribe('fakeTweets', Session.get('currentTwitterUser') && Session.get('currentTwitterUser').screen_name, 20);
+        Meteor.call('asyncGenerateMarkovTweets', Session.get('currentUser'), 20, 2000, forceAsync);
+        log.info('updated user to', Session.get('currentUser'));
     });
 });
 
 Template.tweets.helpers({
+    currentTwitterUser: () => Template.instance().profile.get(),
     tweets() {
-        return fakeTweets.find({ screen_name: this.screen_name }, { 
+        return fakeTweets.find({ screen_name: Session.get('currentUser') }, { 
             sort: { created_at: -1 },
             limit: 20
         }).fetch();
     }
 });
 
-///////////////////////////////////////////////////////////
-// CURRENT USER SETTING                                  //
-///////////////////////////////////////////////////////////
-
-Template.tweets.helpers({
-    currentTwitterUser() { return Session.get('currentTwitterUser'); }
-});
-
-Template.tweets.onRendered(() => {
-    if (!Session.get('currentTwitterUser')) updateUserTo('realDonaldTrump');
-});
-
 // TODO: turn this into a pubsub thing
 Template.tweets.events({
-    'submit .tweet-gen-input': (event, template) => {
+    'submit .tweet-gen-input': (event, tpl) => {
         event.preventDefault();
-        var screenName = template.$('#tweet-gen-screen-name').val();
-        updateUserTo(screenName);
-
-        Meteor.call('generateMarkovTweets', screenName, 10, delay, forceAsync); 
+        Session.set('currentUser', tpl.$('#tweet-gen-screen-name').val());
     }
 });
-
-function updateUserTo(screenName) {
-    Meteor.call('getUserData', screenName, (error, newUser) => {
-        if (error) log.trace(error);
-        Session.set('currentTwitterUser', newUser);
-        log.info('updated user to', screenName);
-    });
-
-    // loads the user directly from MongoDB if it already
-    // exists until the server gets back
-    var newUser = twitterUsers.findOne({ screen_name: screenName });
-    Session.set('currentTwitterUser', newUser);
-}

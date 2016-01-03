@@ -14,6 +14,8 @@
         <header class="page-header">
             <h1>Tweets <small>@{{screen_name}}</small></h1>
         </header>
+
+        {{#if Template.subscriptionsReady}}
         <ul class="list-group">
             {{#each tweets}}
             <li class="list-group-item clearfix">
@@ -32,6 +34,9 @@
             </li>
             {{/each}}
         </ul>
+        {{else}}
+        {{> loading }}
+        {{/if}}
         {{/with}}
     </section>
 </template>

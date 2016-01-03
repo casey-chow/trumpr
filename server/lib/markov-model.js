@@ -73,7 +73,7 @@ MarkovModel = class MarkovModel {
 
     generate(length, seed) {
         length = length || 200;
-        seed = seed || randomSeed(this.text);
+        seed = seed && sanitize(seed) || randomSeed(this.text);
 
         check(length, Match.Integer);
         check(seed,   String);
@@ -88,7 +88,9 @@ MarkovModel = class MarkovModel {
         check(seed, String);
 
         var kgram = seed.slice(-order);
-        if (!_.has(this.model, kgram)) return ' ';
+        if (!this.model[kgram]) {
+            return ' ';
+        }
 
         var dist = this.model[kgram];
         var x = Math.random();

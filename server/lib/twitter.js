@@ -47,7 +47,7 @@ Twitter = class {
         check(direction, Match.OneOf(-1, 1));
         check(limit, Match.Optional(Match.Integer));
 
-        this.refresh();
+        Meteor.defer(() => this.refresh());
         return realTweets.find({ screen_name: this.screenName }, {
             sort: { id: direction },
             limit: limit

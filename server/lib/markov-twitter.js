@@ -54,8 +54,12 @@ MarkovTwitter = class MarkovTwitter {
         }).fetch();
     }
 
-    generate(number = 10, delay = 0) {
+    generate(number, delay) {
         if (!this.twitter) return [];
+        number = number || 10;
+        delay = delay || 0;
+        check(number, Match.Integer);
+        check(delay, Match.Integer);
         log.info('generating tweets for @'+this.screenName);
 
         var tweets = [];
@@ -74,11 +78,39 @@ MarkovTwitter = class MarkovTwitter {
             text: tweet 
         }});
         tweets.forEach(tweet => {
-            if (delay) Meteor._sleepForMs(delay);
-            Meteor.defer(() => fakeTweets.insert(tweet));
+            Meteor.setTimeout(() => fakeTweets.insert(tweet), delay);
         });
         return tweets;
-    };
+    }
+
+    generateAsync(number, delay) {
+        if (!this.twitter) return [];
+        number = number || 10;
+        delay = delay || 0;
+        check(number, Match.Integer);
+        check(delay, Match.Integer);
+        log.info('async generating tweets for @'+this.screenName);
+
+        var tweets = [];
+        var count = 0;
+
+        var generateATweet = () => {
+            let seed       = createSeed(this.source);
+            let markovText = this.model.generate(200, seed);
+            let nextTweet  = cleanGeneratedTweet(markovText);
+            if (nextTweet.length > 15) {
+                count += 1;
+                Meteor.defer(() => fakeTweets.insert({
+                    id: MURMUR_HASH.murmur_2(nextTweet),
+                    created_at: new Date(),
+                    screen_name: this.screenName,
+                    text: nextTweet
+                }));
+            }
+            if (count < number) Meteor.setTimeout(generateATweet, delay);
+        }
+        generateATweet();
+    }
 };
 
 ///////////////////////////////////////////////////////////
@@ -89,8 +121,12 @@ Meteor.methods({
     presentableModelFromUser(user, rows) {
         return MarkovTwitter.fromUser(user).presentable(rows);
     },
-    generateMarkovTweets(user, length) {
-        return MarkovTwitter.fromUser(user).generate(length);
+    generateMarkovTweets(user, length, delay) {
+        return MarkovTwitter.fromUser(user).generate(length, delay);
+    },
+    asyncGenerateMarkovTweets: function(user, length, delay) {
+        this.unblock();
+        return MarkovTwitter.fromUser(user).generateAsync(length, delay);
     }
 });
 
