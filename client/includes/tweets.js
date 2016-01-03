@@ -6,10 +6,10 @@ const delay = 10 * 1000;
 // TWEET PULLING                                         //
 ///////////////////////////////////////////////////////////
 
-Template.tweets.onRendered(() => {
+Template.tweets.onCreated(() => {
     Tracker.autorun(() => {
         Meteor.subscribe('twitterUsers');
-        Meteor.subscribe('fakeTweets', Session.get('currentTwitterUser').screen_name, 20);
+        Meteor.subscribe('fakeTweets', Session.get('currentTwitterUser') && Session.get('currentTwitterUser').screen_name, 20);
     });
 });
 

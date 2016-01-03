@@ -1,0 +1,20 @@
+<template name="testMarkovGen">
+    <div class="{{class}} testMarkovGen">
+        <form class="markov-gen-input form-inline">
+            <div class="form-group name-group">
+                <label class="sr-only" for="markov-input">Source Text</label>
+                <input type="text" class="form-control" id="source-text-input" placeholder="Sample Text Here">
+            </div>
+            <div class="form-group length-group">
+                <label class="sr-only" for="length-input">Output Length</label>
+                <input type="text" class="form-control" id="length-input" placeholder="length">
+            </div>
+            <input type="submit" class="sr-only">
+        </form>
+        <section class="markov-gen">
+            <h2>Markov Gen</h2>
+        
+            <pre class="markov-gen-output">{{generated_text}}</pre>
+        </section>
+    </div>
+</template>

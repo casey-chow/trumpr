@@ -1,0 +1,41 @@
+<template name="testMarkovModel">
+    <div class="{{class}} testMarkovModel">
+
+        <form class="markov-model-input">
+            <div class="form-group">
+                <label class="sr-only" for="markov-input">Source Text</label>
+                <input type="text" class="form-control" id="markov-input" placeholder="Sample Text Here">
+            </div>
+            <input type="submit" class="sr-only">
+        </form>
+        <section class="markov-model">
+            <h2>Markov Model<br/><small>{{length}} Entries</small></h2>
+    
+            {{#if markovModel}}
+            <div class="frequencies">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>History</th>
+                            <th>Frequency Table</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{#each markovModel}}
+                        <tr>
+                            <td><code>{{history}}</code></td>
+                            <td>
+                                {{#each frequencies}}
+                                <code>{{letter}}</code> {{freq}} 
+                                {{/each}}
+                            </td>
+                        </tr>
+                        {{/each}}
+                    </tbody>
+                </table>
+            </div>
+            {{/if}}
+        </section>
+
+    </div>
+</template>

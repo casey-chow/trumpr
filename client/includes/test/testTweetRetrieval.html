@@ -1,0 +1,44 @@
+<template name="testTweetRetrieval">
+    <div class="{{class}} testTweetRetrieval">
+
+        <form class="tweet-retrieval-input form-inline">
+            <div class="form-group tweet-name-group">
+                <label class="sr-only" for="screen-name">Screen Name</label>
+                <div class="input-group">
+                    <div class="input-group-addon">@</div>
+                    <input type="text" class="form-control" id="screen-name" placeholder="realDonaldTrump">
+                </div>
+            </div>
+            <div class="form-group length-group">
+                <label class="sr-only" for="length">Length</label>
+                <input type="text" class="form-control" id="length" size="4" placeholder="#">
+            </div>
+            <input type="submit" class="sr-only" />
+        </form>
+
+        <section class="user-profile">
+            <h2>Profile</h2>
+            {{#with profile}}
+            <img src="{{profile_image_url}}" alt="{{screen_name}} Profile Picture" class="profile-picture">
+            <h3 class="screen-name">@{{screen_name}}</h3>
+            <span class="real-name">{{name}}</span>
+            {{/with}}
+        </section>
+
+        <section class="tweet-retrieval">
+            <h2>Tweets <small>Total {{tweets.length}}</small></h2> 
+            {{#if tweets}}
+            <div class="tweets">
+                {{#each tweets}}
+                <p>
+                    {{text}}
+                    <br />
+                    <small>{{created_at}}</small>
+                </p>
+                {{/each}}
+            </div>
+            {{/if}}
+        </section>
+
+    </div>
+</template>
