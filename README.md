@@ -14,14 +14,14 @@ need no longer spend time inventing and inundating the self-referential media
 circuit we call the 4th branch of government. Because what is democracy if 
 not ever increasingly less human and more computerized?
 
----
+## History
 
 This code was a project from [HackPrinceton Fall 2015][hp], originally built using 
 [Meteor][], [React][], and [Python][] on a [Linode][] server. It has since been 
 rewritten to be fully deployed on the standard Meteor stack.
 
 This hack won the Best Domain Award (`trumpr.org`) at HackPrinceton. Thanks,
-Domain.Com for believing in us! :')
+[Domain.com][dc] for believing in us! :')
 
 [hp]: http://hackprinceton.com
 [meteor]: https://www.meteor.com
@@ -29,6 +29,7 @@ Domain.Com for believing in us! :')
 [python]: https://www.python.org
 [linode]: http://linode.com
 [computers]: http://www.theverge.com/2015/12/7/9869308/donald-trump-close-up-the-internet-bill-gates
+[dc]: http://domain.com/
 
 ## Running
 
