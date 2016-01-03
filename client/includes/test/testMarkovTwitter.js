@@ -10,11 +10,11 @@ Template.testMarkovTwitter.helpers({
 });
 
 Template.testMarkovTwitter.events({
-    'submit .twitter-markov-input': (event, template) => {
+    'submit .twitter-markov-input': (event, tpl) => {
         event.preventDefault();
 
-        tpl.user.set(template.$('#markov-screen-name').val());
-        tpl.length.set(+template.$('#markov-length').val());
+        tpl.user.set(tpl.$('#markov-screen-name').val());
+        tpl.length.set(+tpl.$('#markov-length').val());
 
         if (tpl.user.get()) {
             Meteor.call('presentableModelFromUser', tpl.user.get(), 
