@@ -52,7 +52,6 @@ modules@0.7.7
 modules-runtime@0.7.7
 mongo@1.1.14
 mongo-id@1.0.6
-npm-container@1.2.0
 npm-mongo@2.2.11_2
 observe-sequence@1.0.14
 ordered-dict@1.0.9
