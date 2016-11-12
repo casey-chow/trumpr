@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////
 // DEPENDENCIES                                          //
 ///////////////////////////////////////////////////////////
-const Twit = Meteor.npmRequire('twit');
+import Twit from 'twit';
 const T = new Twit({
     consumer_key:        'FRkxZ28y55sbr8oScY6qNsVeQ',
     consumer_secret:     'NmGUxz5NJAIT3lx4X4T5G0cLkr7MwYgoHkuZ52Np3vYZNz51m7',

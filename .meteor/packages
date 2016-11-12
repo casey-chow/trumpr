@@ -4,29 +4,30 @@
 # 'meteor add' and 'meteor remove' will edit this file for you,
 # but you can also edit it by hand.
 
-meteor-base             # Packages every Meteor app needs to have
-mongo                   # The database Meteor supports right now
+meteor-base@1.0.4             # Packages every Meteor app needs to have
+mongo@1.1.14                   # The database Meteor supports right now
 blaze-html-templates    # Compile .html files into Meteor Blaze views
-session                 # Client-side reactive dictionary for your app
-jquery                  # Helpful client-side library
-tracker                 # Meteor's client-side reactive programming library
+session@1.1.7                 # Client-side reactive dictionary for your app
+jquery@1.11.10                  # Helpful client-side library
+tracker@1.1.1                 # Meteor's client-side reactive programming library
 
-standard-minifiers      # JS/CSS minifiers run for production mode
-es5-shim                # ECMAScript 5 compatibility for older browsers.
-ecmascript              # Enable ECMAScript2015+ syntax in app code
+es5-shim@4.6.15                # ECMAScript 5 compatibility for older browsers.
+ecmascript@0.5.9              # Enable ECMAScript2015+ syntax in app code
 
-less
+less@2.7.7
 twbs:bootstrap
-meteorhacks:npm
 
 
 npm-container
 iron:router
 matb33:collection-hooks
 simple:reactive-method
-underscore
+underscore@1.0.10
 stevezhu:lodash
 jandres:murmur
 practicalmeteor:loglevel
-reactive-var
-check
+reactive-var@1.0.11
+check@1.2.4
+standard-minifier-css
+standard-minifier-js
+shell-server
